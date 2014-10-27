@@ -90,7 +90,7 @@ def _build_callback_url(action_context, exec_db):
 
 class St2Action(std_actions.HTTPAction):
 
-    def __init__(self, action_context, name, parameters=None):
+    def __init__(self, action_context, ref, parameters=None):
 
         exec_id = str(action_context['execution_id'])
         exec_db = _get_execution(exec_id, 'v2') or _get_execution(exec_id, 'v1')
@@ -112,7 +112,7 @@ class St2Action(std_actions.HTTPAction):
         }
 
         body = {
-            'action': name,
+            'action': ref,
             'parameters': parameters,
             'callback': callback
         }
