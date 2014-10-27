@@ -112,7 +112,7 @@ class St2Action(std_actions.HTTPAction):
         }
 
         body = {
-            'action': {'name': name},
+            'action': name,
             'parameters': parameters,
             'callback': callback
         }
@@ -141,7 +141,7 @@ class St2Callback(std_actions.HTTPAction):
             headers['X-Auth-Token'] = cfg.CONF.st2.auth_token
 
         body = {
-            'action': {'name': str(action_context.get('workbook_name'))},
+            'action': str(action_context.get('workflow_name')),
             'status': STATUS_MAP[state],
             'result': {
                 'id': str(action_context.get('execution_id')),
