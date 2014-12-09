@@ -113,9 +113,11 @@ class St2Action(std_actions.HTTPAction):
 
         body = {
             'action': ref,
-            'parameters': parameters,
             'callback': callback
         }
+
+        if parameters:
+            body['parameters'] = parameters
 
         super(St2Action, self).__init__(
             st2_context.get('st2_api_url'), method='POST',
