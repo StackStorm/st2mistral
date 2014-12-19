@@ -14,6 +14,8 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+import datetime
+
 import six
 from oslo.config import cfg
 
@@ -40,6 +42,7 @@ STATUS_MAP = {
     'SUCCESS': 'succeeded',
     'ERROR': 'failed'
 }
+DATE_FORMAT_STRING = '%Y-%m-%dT%H:%M:%S.000000Z'
 
 
 def _get_execution(execution_id, version='v1'):
@@ -151,6 +154,10 @@ class St2Callback(std_actions.HTTPAction):
                 'output': result
             }
         }
+
+        if STATUS_MAP[state] in ['succeeded', 'failed']:
+            end_timestamp = datetime.datetime.utcnow()
+            body['end_timestamp'] = end_timestamp.strftime(DATE_FORMAT_STRING)
 
         super(St2Callback, self).__init__(
             '%s/%s' % (st2_context.get('st2_api_url'),
