@@ -14,8 +14,6 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import datetime
-
 import six
 from oslo.config import cfg
 
@@ -128,38 +126,3 @@ class St2Action(std_actions.HTTPAction):
 
     def is_sync(self):
         return False
-
-
-class St2Callback(std_actions.HTTPAction):
-
-    def __init__(self, action_context, state, result):
-
-        exec_id = str(action_context['execution_id'])
-        exec_db = _get_execution(exec_id, 'v2') or _get_execution(exec_id, 'v1')
-        st2_context = _get_st2_context(exec_db)
-
-        headers = {'content-type': 'application/json'}
-
-        if 'st2_auth_token' in st2_context:
-            headers['X-Auth-Token'] = st2_context.get('st2_auth_token')
-        elif 'st2' in cfg.CONF and 'auth_token' in cfg.CONF.st2:
-            headers['X-Auth-Token'] = cfg.CONF.st2.auth_token
-
-        body = {
-            'action': str(action_context.get('workflow_name')),
-            'status': STATUS_MAP[state],
-            'result': {
-                'id': str(action_context.get('execution_id')),
-                'state': state,
-                'output': result
-            }
-        }
-
-        if STATUS_MAP[state] in ['succeeded', 'failed']:
-            end_timestamp = datetime.datetime.utcnow()
-            body['end_timestamp'] = end_timestamp.strftime(DATE_FORMAT_STRING)
-
-        super(St2Callback, self).__init__(
-            '%s/%s' % (st2_context.get('st2_api_url'),
-                       st2_context.get('st2_parent')),
-            method='PUT', body=body, headers=headers)
