@@ -14,6 +14,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+import json
 import six
 from oslo.config import cfg
 
@@ -94,11 +95,17 @@ class St2Action(std_actions.HTTPAction):
 
         exec_id = str(action_context['execution_id'])
         exec_db = _get_execution(exec_id, 'v2') or _get_execution(exec_id, 'v1')
+
         st2_context = _get_st2_context(exec_db)
+
+        st2_action_context = {
+            'parent': st2_context.get('st2_parent'),
+            'mistral': action_context
+        }
 
         headers = {
             'content-type': 'application/json',
-            'st2-context': {'parent': st2_context.get('st2_parent')}
+            'st2-context': json.dumps(st2_action_context)
         }
 
         if 'st2_auth_token' in st2_context:
