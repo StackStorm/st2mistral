@@ -41,10 +41,11 @@ STATUS_MAP = {
     'SUCCESS': 'succeeded',
     'ERROR': 'failed'
 }
+
 DATE_FORMAT_STRING = '%Y-%m-%dT%H:%M:%S.000000Z'
 
 
-def _get_execution(execution_id, version='v1'):
+def _get_execution(execution_id, version='v2'):
     methods = {'v1': db_v1_api.execution_get, 'v2': db_v2_api.get_execution}
     try:
         return methods[version](execution_id)
@@ -52,20 +53,24 @@ def _get_execution(execution_id, version='v1'):
         return None
 
 
-def _get_st2_context(exec_db):
+def _get_st2_context_from_db(action_context):
+
+    exec_id = str(action_context['execution_id'])
+    exec_db = _get_execution(exec_id, 'v2') or _get_execution(exec_id, 'v1')
+
     context = {}
 
     if isinstance(exec_db, db_v1_models.WorkflowExecution):
         context = {
-            'st2_parent': exec_db.context.get('st2_parent'),
-            'st2_api_url': exec_db.context.get('st2_api_url'),
-            'st2_auth_token': exec_db.context.get('st2_auth_token')
+            'parent': exec_db.context.get('st2_parent'),
+            'endpoint': exec_db.context.get('st2_api_url'),
+            'auth_token': exec_db.context.get('st2_auth_token')
         }
     elif isinstance(exec_db, db_v2_models.Execution):
         context = {
-            'st2_parent': exec_db.start_params.get('st2_parent'),
-            'st2_api_url': exec_db.start_params.get('st2_api_url'),
-            'st2_auth_token': exec_db.start_params.get('st2_auth_token')
+            'parent': exec_db.start_params.get('st2_parent'),
+            'endpoint': exec_db.start_params.get('st2_api_url'),
+            'auth_token': exec_db.start_params.get('st2_auth_token')
         }
 
     for k, v in six.iteritems(context):
@@ -75,14 +80,14 @@ def _get_st2_context(exec_db):
     return context
 
 
-def _build_callback_url(action_context, exec_db):
-    if isinstance(exec_db, db_v1_models.WorkflowExecution):
+def _build_callback_url(action_context, version='v2'):
+    if version == 'v1':
         return ('http://%s:%s/v1/workbooks/%s/executions/%s/tasks/%s' % (
                 cfg.CONF.api.host, cfg.CONF.api.port,
                 str(action_context.get('workbook_name')),
                 str(action_context.get('execution_id')),
                 str(action_context.get('task_id'))))
-    elif isinstance(exec_db, db_v2_models.Execution):
+    elif version == 'v2':
         return ('http://%s:%s/v2/tasks/%s' % (
                 cfg.CONF.api.host, cfg.CONF.api.port,
                 str(action_context.get('task_id'))))
@@ -92,15 +97,17 @@ def _build_callback_url(action_context, exec_db):
 
 class St2Action(std_actions.HTTPAction):
 
-    def __init__(self, action_context, ref, parameters=None):
+    def __init__(self, action_context, ref, parameters=None, st2_context=None):
 
-        exec_id = str(action_context['execution_id'])
-        exec_db = _get_execution(exec_id, 'v2') or _get_execution(exec_id, 'v1')
+        # Get the context from the database for backward compatibility.
+        if not st2_context:
+            st2_context = _get_st2_context_from_db(action_context)
 
-        st2_context = _get_st2_context(exec_db)
+        if not st2_context or not st2_context.get('endpoint'):
+            raise Exception('Invalid st2 context in the execution request.')
 
         st2_action_context = {
-            'parent': st2_context.get('st2_parent'),
+            'parent': st2_context.get('parent'),
             'mistral': action_context
         }
 
@@ -109,14 +116,14 @@ class St2Action(std_actions.HTTPAction):
             'st2-context': json.dumps(st2_action_context)
         }
 
-        if 'st2_auth_token' in st2_context:
-            headers['X-Auth-Token'] = st2_context.get('st2_auth_token')
+        if 'auth_token' in st2_context:
+            headers['X-Auth-Token'] = st2_context.get('auth_token')
         elif 'st2' in cfg.CONF and 'auth_token' in cfg.CONF.st2:
             headers['X-Auth-Token'] = cfg.CONF.st2.auth_token
 
         callback = {
             'source': 'mistral',
-            'url': _build_callback_url(action_context, exec_db)
+            'url': _build_callback_url(action_context)
         }
 
         body = {
@@ -128,7 +135,7 @@ class St2Action(std_actions.HTTPAction):
             body['parameters'] = parameters
 
         super(St2Action, self).__init__(
-            st2_context.get('st2_api_url'), method='POST',
+            st2_context.get('endpoint'), method='POST',
             body=body, headers=headers)
 
     def is_sync(self):
