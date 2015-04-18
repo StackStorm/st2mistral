@@ -88,9 +88,9 @@ def _build_callback_url(action_context, version='v2'):
                 str(action_context.get('execution_id')),
                 str(action_context.get('task_id'))))
     elif version == 'v2':
-        return ('http://%s:%s/v2/tasks/%s' % (
+        return ('http://%s:%s/v2/action_executions/%s' % (
                 cfg.CONF.api.host, cfg.CONF.api.port,
-                str(action_context.get('task_id'))))
+                str(action_context.get('action_execution_id'))))
     else:
         return None
 
