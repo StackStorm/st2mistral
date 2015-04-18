@@ -18,9 +18,7 @@ import json
 import six
 from oslo.config import cfg
 
-from mistral.db.v1 import api as db_v1_api
 from mistral.db.v2 import api as db_v2_api
-from mistral.db.v1.sqlalchemy import models as db_v1_models
 from mistral.db.v2.sqlalchemy import models as db_v2_models
 from mistral import exceptions as exc
 from mistral.actions import std_actions
@@ -46,48 +44,18 @@ DATE_FORMAT_STRING = '%Y-%m-%dT%H:%M:%S.000000Z'
 
 
 def _get_execution(execution_id, version='v2'):
-    methods = {'v1': db_v1_api.execution_get, 'v2': db_v2_api.get_execution}
+    methods = {
+        'v2': db_v2_api.get_execution
+    }
+
     try:
         return methods[version](execution_id)
     except exc.NotFoundException:
         return None
 
 
-def _get_st2_context_from_db(action_context):
-
-    exec_id = str(action_context['execution_id'])
-    exec_db = _get_execution(exec_id, 'v2') or _get_execution(exec_id, 'v1')
-
-    context = {}
-
-    if isinstance(exec_db, db_v1_models.WorkflowExecution):
-        context = {
-            'parent': exec_db.context.get('st2_parent'),
-            'endpoint': exec_db.context.get('st2_api_url'),
-            'auth_token': exec_db.context.get('st2_auth_token')
-        }
-    elif isinstance(exec_db, db_v2_models.Execution):
-        context = {
-            'parent': exec_db.start_params.get('st2_parent'),
-            'endpoint': exec_db.start_params.get('st2_api_url'),
-            'auth_token': exec_db.start_params.get('st2_auth_token')
-        }
-
-    for k, v in six.iteritems(context):
-        if isinstance(v, basestring):
-            context[k] = str(v)
-
-    return context
-
-
 def _build_callback_url(action_context, version='v2'):
-    if version == 'v1':
-        return ('http://%s:%s/v1/workbooks/%s/executions/%s/tasks/%s' % (
-                cfg.CONF.api.host, cfg.CONF.api.port,
-                str(action_context.get('workbook_name')),
-                str(action_context.get('execution_id')),
-                str(action_context.get('task_id'))))
-    elif version == 'v2':
+    if version == 'v2':
         return ('http://%s:%s/v2/action_executions/%s' % (
                 cfg.CONF.api.host, cfg.CONF.api.port,
                 str(action_context.get('action_execution_id'))))
@@ -98,10 +66,6 @@ def _build_callback_url(action_context, version='v2'):
 class St2Action(std_actions.HTTPAction):
 
     def __init__(self, action_context, ref, parameters=None, st2_context=None):
-
-        # Get the context from the database for backward compatibility.
-        if not st2_context:
-            st2_context = _get_st2_context_from_db(action_context)
 
         if not st2_context or not st2_context.get('endpoint'):
             raise Exception('Invalid st2 context in the execution request.')
