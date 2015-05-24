@@ -15,11 +15,10 @@
 #    limitations under the License.
 
 import json
-import six
+
 from oslo.config import cfg
 
 from mistral.db.v2 import api as db_v2_api
-from mistral.db.v2.sqlalchemy import models as db_v2_models
 from mistral import exceptions as exc
 from mistral.actions import std_actions
 from mistral.openstack.common import log as logging
@@ -66,9 +65,14 @@ def _build_callback_url(action_context, version='v2'):
 class St2Action(std_actions.HTTPAction):
 
     def __init__(self, action_context, ref, parameters=None, st2_context=None):
-
         if not st2_context or not st2_context.get('endpoint'):
             raise Exception('Invalid st2 context in the execution request.')
+
+        endpoint = st2_context['endpoint']
+        notify = st2_context.get('notify', {})
+        skip_notify_tasks = st2_context.get('skip_notify_tasks', [])
+
+        task_name = action_context.get('task_name', 'unknown')
 
         st2_action_context = {
             'parent': st2_context.get('parent'),
@@ -95,12 +99,15 @@ class St2Action(std_actions.HTTPAction):
             'callback': callback
         }
 
+        if task_name not in skip_notify_tasks:
+            # We only include notifications settings if the task is not to be skipped
+            body['notify'] = notify
+
         if parameters:
             body['parameters'] = parameters
 
-        super(St2Action, self).__init__(
-            st2_context.get('endpoint'), method='POST',
-            body=body, headers=headers)
+        super(St2Action, self).__init__(url=endpoint, method='POST', body=body,
+                                        headers=headers)
 
     def is_sync(self):
         return False
