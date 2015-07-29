@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Copyright 2014 - StackStorm, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +14,12 @@
 
 import json
 
-from oslo.config import cfg
+from oslo_config import cfg
+from oslo_log import log as logging
 
 from mistral.db.v2 import api as db_v2_api
 from mistral import exceptions as exc
 from mistral.actions import std_actions
-from mistral.openstack.common import log as logging
 
 
 LOG = logging.getLogger(__name__)
