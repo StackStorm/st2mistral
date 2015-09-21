@@ -105,7 +105,7 @@ class St2Action(std_actions.HTTPAction):
             body['parameters'] = parameters
 
         super(St2Action, self).__init__(url=endpoint, method='POST', body=body,
-                                        headers=headers)
+                                        headers=headers, verify=False)
 
     def is_sync(self):
         return False
