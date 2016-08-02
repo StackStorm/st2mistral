@@ -14,15 +14,15 @@
 
 import copy
 import json
-
 import requests
 import retrying
+
 from oslo_config import cfg
 from oslo_log import log as logging
 
+from mistral.actions import base
 from mistral.db.v2 import api as db_v2_api
 from mistral import exceptions as exc
-from mistral.actions import base
 from mistral.workflow import utils as wf_utils
 
 
@@ -33,10 +33,25 @@ cfg.CONF.import_opt('host', 'mistral.config', group='api')
 cfg.CONF.import_opt('port', 'mistral.config', group='api')
 
 st2_opts = [
-    cfg.StrOpt('auth_token', help='Auth token for st2 API.'),
-    cfg.IntOpt('retry_exp_msec', default=1000, help='Multiplier for the exponential backoff.'),
-    cfg.IntOpt('retry_exp_max_msec', default=60000, help='Max time for each set of backoff.'),
-    cfg.IntOpt('retry_stop_max_msec', default=180000, help='Max time to stop retrying.'),
+    cfg.StrOpt(
+        'auth_token',
+        help='Auth token for st2 API.'
+    ),
+    cfg.IntOpt(
+        'retry_exp_msec',
+        default=1000,
+        help='Multiplier for the exponential backoff.'
+    ),
+    cfg.IntOpt(
+        'retry_exp_max_msec',
+        default=60000,
+        help='Max time for each set of backoff.'
+    ),
+    cfg.IntOpt(
+        'retry_stop_max_msec',
+        default=180000,
+        help='Max time to stop retrying.'
+    )
 ]
 
 cfg.CONF.register_opts(st2_opts, group='st2')
@@ -78,7 +93,8 @@ class St2Action(base.Action):
             raise exc.ActionException(
                 'Failed to initialize %s [action_context=%s, '
                 'ref=%s]: Invalid st2 context.' % (
-                self.__class__.__name__, action_context, ref)
+                    self.__class__.__name__, action_context, ref
+                )
             )
 
         self.action_context = action_context
@@ -94,10 +110,13 @@ class St2Action(base.Action):
         wait_exponential_max=cfg.CONF.st2.retry_exp_max_msec,
         stop_max_delay=cfg.CONF.st2.retry_stop_max_msec)
     def request(self, method, endpoint, headers, data, verify=False):
-        LOG.info('Sending HTTP request for %s [action_context=%s, '
-                 'ref=%s, parameters=%s, st2_context=%s]' % (
-                 self.__class__.__name__, self.action_context, self.ref,
-                 self.parameters, self.st2_context_log_safe))
+        LOG.info(
+            'Sending HTTP request for %s [action_context=%s, '
+            'ref=%s, parameters=%s, st2_context=%s]' % (
+                self.__class__.__name__, self.action_context, self.ref,
+                self.parameters, self.st2_context_log_safe
+            )
+        )
 
         return requests.request(
             method,
@@ -108,10 +127,13 @@ class St2Action(base.Action):
         )
 
     def run(self):
-        LOG.info('Running %s [action_context=%s, ref=%s, '
-                 'parameters=%s, st2_context=%s]' % (
-                 self.__class__.__name__, self.action_context, self.ref,
-                 self.parameters, self.st2_context_log_safe))
+        LOG.info(
+            'Running %s [action_context=%s, ref=%s, '
+            'parameters=%s, st2_context=%s]' % (
+                self.__class__.__name__, self.action_context, self.ref,
+                self.parameters, self.st2_context_log_safe
+            )
+        )
 
         method = 'POST'
         endpoint = self.st2_context['endpoint']
@@ -143,8 +165,8 @@ class St2Action(base.Action):
         skip_notify_tasks = self.st2_context.get('skip_notify_tasks', [])
         task_name = self.action_context.get('task_name', 'unknown')
 
+        # Include notifications settings if the task is not to be skipped.
         if task_name not in skip_notify_tasks:
-            # We only include notifications settings if the task is not to be skipped
             body['notify'] = notify
 
         if self.parameters:
@@ -158,15 +180,19 @@ class St2Action(base.Action):
             raise exc.ActionException(
                 'Failed to send HTTP request for %s [action_context=%s, '
                 'ref=%s, parameters=%s, st2_context=%s]: %s' % (
-                self.__class__.__name__, self.action_context, self.ref,
-                self.parameters, self.st2_context_log_safe, e)
+                    self.__class__.__name__, self.action_context, self.ref,
+                    self.parameters, self.st2_context_log_safe, e
+                )
             )
 
-        LOG.info('Received HTTP response for %s [action_context=%s, '
-                 'ref=%s, parameters=%s, st2_context=%s]:\n%s\n%s' % (
-                 self.__class__.__name__, self.action_context, self.ref,
-                 self.parameters, self.st2_context_log_safe,
-                 resp.status_code, resp.content))
+        LOG.info(
+            'Received HTTP response for %s [action_context=%s, '
+            'ref=%s, parameters=%s, st2_context=%s]:\n%s\n%s' % (
+                self.__class__.__name__, self.action_context, self.ref,
+                self.parameters, self.st2_context_log_safe,
+                resp.status_code, resp.content
+            )
+        )
 
         try:
             content = resp.json()
