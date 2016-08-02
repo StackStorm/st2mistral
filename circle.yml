@@ -6,4 +6,4 @@ dependencies:
 
 test:
   override:
-    - tox -e py35,py34,py27,pep8
+    - tox -e py34,py27,pep8
