@@ -6,4 +6,4 @@ dependencies:
 
 test:
   override:
-    - tox -e py27,pep8
+    - tox -e pep8
