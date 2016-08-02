@@ -15,8 +15,6 @@
 
 import copy
 import json
-import requests
-import retrying
 
 from oslo_config import cfg
 from oslo_log import log as logging
@@ -25,6 +23,8 @@ from mistral.actions import base
 from mistral.db.v2 import api as db_v2_api
 from mistral import exceptions as exc
 from mistral.workflow import utils as wf_utils
+
+from st2mistral.utils import http
 
 
 LOG = logging.getLogger(__name__)
@@ -50,15 +50,6 @@ def _build_callback_url(action_context, version='v2'):
         return None
 
 
-def _retry_on_exceptions(exc):
-    LOG.warning('St2Action failed with exception type %s. Determining '
-                'if action execution can be retried...', type(exc))
-
-    is_connection_error = isinstance(exc, requests.exceptions.ConnectionError)
-
-    return is_connection_error
-
-
 class St2Action(base.Action):
 
     def __init__(self, action_context, ref, parameters=None, st2_context=None):
@@ -77,28 +68,6 @@ class St2Action(base.Action):
         self.st2_context_log_safe = copy.deepcopy(st2_context)
         self.st2_context_log_safe.pop('auth_token', None)
 
-    @retrying.retry(
-        retry_on_exception=_retry_on_exceptions,
-        wait_exponential_multiplier=cfg.CONF.st2.retry_exp_msec,
-        wait_exponential_max=cfg.CONF.st2.retry_exp_max_msec,
-        stop_max_delay=cfg.CONF.st2.retry_stop_max_msec)
-    def request(self, method, endpoint, headers, data, verify=False):
-        LOG.info(
-            'Sending HTTP request for %s [action_context=%s, '
-            'ref=%s, parameters=%s, st2_context=%s]' % (
-                self.__class__.__name__, self.action_context, self.ref,
-                self.parameters, self.st2_context_log_safe
-            )
-        )
-
-        return requests.request(
-            method,
-            endpoint,
-            data=data,
-            headers=headers,
-            verify=verify
-        )
-
     def run(self):
         LOG.info(
             'Running %s [action_context=%s, ref=%s, '
@@ -108,7 +77,6 @@ class St2Action(base.Action):
             )
         )
 
-        method = 'POST'
         endpoint = self.st2_context['endpoint']
 
         st2_action_context = {
@@ -117,14 +85,15 @@ class St2Action(base.Action):
         }
 
         headers = {
-            'content-type': 'application/json',
             'st2-context': json.dumps(st2_action_context)
         }
 
+        token = None
+
         if 'auth_token' in self.st2_context:
-            headers['X-Auth-Token'] = self.st2_context.get('auth_token')
+            token = self.st2_context.get('auth_token')
         elif 'st2' in cfg.CONF and 'auth_token' in cfg.CONF.st2:
-            headers['X-Auth-Token'] = cfg.CONF.st2.auth_token
+            token = cfg.CONF.st2.auth_token
 
         body = {
             'action': self.ref,
@@ -145,10 +114,16 @@ class St2Action(base.Action):
         if self.parameters:
             body['parameters'] = self.parameters
 
-        data = json.dumps(body) if isinstance(body, dict) else body
+        LOG.info(
+            'Sending HTTP request for %s [action_context=%s, '
+            'ref=%s, parameters=%s, st2_context=%s]' % (
+                self.__class__.__name__, self.action_context, self.ref,
+                self.parameters, self.st2_context_log_safe
+            )
+        )
 
         try:
-            resp = self.request(method, endpoint, headers, data)
+            resp = http.post(endpoint, body, headers=headers, token=token)
         except Exception as e:
             raise exc.ActionException(
                 'Failed to send HTTP request for %s [action_context=%s, '
