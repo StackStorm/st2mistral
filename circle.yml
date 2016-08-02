@@ -1,0 +1,3 @@
+test:
+  override:
+    - tox -e py35,py34,py27,pep8
