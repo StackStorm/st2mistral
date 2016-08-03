@@ -38,13 +38,16 @@ def retry_on_exceptions(exc):
     wait_exponential_multiplier=cfg.CONF.st2.retry_exp_msec,
     wait_exponential_max=cfg.CONF.st2.retry_exp_max_msec,
     stop_max_delay=cfg.CONF.st2.retry_stop_max_msec)
-def get(url, headers=None, token=None):
+def get(url, params=None, headers=None, token=None):
+    if params and not isinstance(params, dict):
+        raise TypeError('The params arg must be typeof dict.')
+
     headers = copy.deepcopy(headers) if headers else {}
 
     if token:
         headers['X-Auth-Token'] = str(token)
 
-    return requests.get(url, headers=headers)
+    return requests.get(url, params=params, headers=headers)
 
 
 @retrying.retry(

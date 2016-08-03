@@ -53,7 +53,7 @@ def _build_callback_url(action_context, version='v2'):
 class St2Action(base.Action):
 
     def __init__(self, action_context, ref, parameters=None, st2_context=None):
-        if not st2_context or not st2_context.get('endpoint'):
+        if not st2_context or not st2_context.get('api_url'):
             raise exc.ActionException(
                 'Failed to initialize %s [action_context=%s, '
                 'ref=%s]: Invalid st2 context.' % (
@@ -77,7 +77,7 @@ class St2Action(base.Action):
             )
         )
 
-        endpoint = self.st2_context['endpoint']
+        endpoint = self.st2_context['api_url'] + '/actionexecutions'
 
         st2_action_context = {
             'parent': self.st2_context.get('parent'),
