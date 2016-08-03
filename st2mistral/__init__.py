@@ -1,4 +1,5 @@
 # Copyright 2016 - StackStorm, Inc.
+# Copyright 2016 - Brocade Communications Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -14,4 +15,9 @@
 
 import pbr.version
 
+from st2mistral import config
+
+
 __version__ = pbr.version.VersionInfo('st2mistral').version_string()
+
+config.register_opts()
