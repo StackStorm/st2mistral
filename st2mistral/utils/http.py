@@ -47,7 +47,7 @@ def get(url, params=None, headers=None, token=None):
     if token:
         headers['X-Auth-Token'] = str(token)
 
-    return requests.get(url, params=params, headers=headers)
+    return requests.get(url, params=params, headers=headers, verify=False)
 
 
 @retrying.retry(
@@ -62,4 +62,4 @@ def post(url, data, headers=None, token=None):
     if token:
         headers['X-Auth-Token'] = str(token)
 
-    return requests.post(url, json.dumps(data), headers=headers)
+    return requests.post(url, json.dumps(data), headers=headers, verify=False)
