@@ -15,10 +15,13 @@
 import copy
 from six.moves import http_client
 
-from mistral import exceptions as exc
 from oslo_config import cfg
 from oslo_log import log as logging
 
+from st2mistral import config
+config.register_opts()
+
+from mistral import exceptions as exc
 from st2mistral.utils import http
 
 

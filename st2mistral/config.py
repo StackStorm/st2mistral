@@ -28,7 +28,8 @@ st2_opts = [
     ),
     cfg.StrOpt(
         'api_key',
-        help='API key to authenticate with the auth endpoint for token validation.'
+        help='API key to authenticate with the auth '
+             'endpoint for token validation.'
     ),
     cfg.IntOpt(
         'token_ttl_sec',
@@ -54,6 +55,11 @@ st2_opts = [
 
 
 def register_opts():
-    cfg.CONF.import_opt('host', 'mistral.config', group='api')
-    cfg.CONF.import_opt('port', 'mistral.config', group='api')
-    cfg.CONF.register_opts(st2_opts, group='st2')
+    if 'api' not in cfg.CONF or 'host' in cfg.CONF.api:
+        cfg.CONF.import_opt('host', 'mistral.config', group='api')
+
+    if 'api' not in cfg.CONF or 'port' in cfg.CONF.api:
+        cfg.CONF.import_opt('port', 'mistral.config', group='api')
+
+    if 'st2' not in cfg.CONF:
+        cfg.CONF.register_opts(st2_opts, group='st2')

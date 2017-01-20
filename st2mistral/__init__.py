@@ -15,9 +15,5 @@
 
 import pbr.version
 
-from st2mistral import config
-
 
 __version__ = pbr.version.VersionInfo('st2mistral').version_string()
-
-config.register_opts()

@@ -12,7 +12,6 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import requests
 from six.moves import http_client
 
 from oslo_config import cfg
@@ -40,6 +39,7 @@ class St2AuthHandler(auth.AuthHandler):
         url = cfg.CONF.st2.auth_url + '/tokens/validate'
         resp = http.post(url, data, headers=headers)
 
-        if resp.status_code != http_client.OK or not resp.json().get('valid', False):
+        if (resp.status_code != http_client.OK or
+                not resp.json().get('valid', False)):
             LOG.error('Unable to verify auth token. %s' % str(resp.content))
             raise exc.UnauthorizedException('Unable to verify auth token.')

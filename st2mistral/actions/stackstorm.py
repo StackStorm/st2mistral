@@ -19,6 +19,9 @@ import json
 from oslo_config import cfg
 from oslo_log import log as logging
 
+from st2mistral import config
+config.register_opts()
+
 from mistral.actions import base
 from mistral.db.v2 import api as db_v2_api
 from mistral import exceptions as exc
