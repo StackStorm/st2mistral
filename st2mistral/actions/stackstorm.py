@@ -92,8 +92,6 @@ class St2Action(base.Action):
 
         if 'auth_token' in self.st2_context:
             token = self.st2_context.get('auth_token')
-        elif 'st2' in cfg.CONF and 'auth_token' in cfg.CONF.st2:
-            token = cfg.CONF.st2.auth_token
 
         body = {
             'action': self.ref,

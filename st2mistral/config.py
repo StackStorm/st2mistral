@@ -22,8 +22,18 @@ LOG = logging.getLogger(__name__)
 
 st2_opts = [
     cfg.StrOpt(
-        'auth_token',
-        help='Auth token for st2 API.'
+        'auth_url',
+        default='https://localhost/auth',
+        help='Auth endpoint for st2.'
+    ),
+    cfg.StrOpt(
+        'api_key',
+        help='API key to authenticate with the auth endpoint for token validation.'
+    ),
+    cfg.IntOpt(
+        'token_ttl_sec',
+        default=300,
+        help='The amount of time before cached auth token is expired.'
     ),
     cfg.IntOpt(
         'retry_exp_msec',
