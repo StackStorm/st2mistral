@@ -19,6 +19,9 @@ import json
 from oslo_config import cfg
 from oslo_log import log as logging
 
+from st2mistral import config
+config.register_opts()
+
 from mistral.actions import base
 from mistral.db.v2 import api as db_v2_api
 from mistral import exceptions as exc
@@ -92,8 +95,6 @@ class St2Action(base.Action):
 
         if 'auth_token' in self.st2_context:
             token = self.st2_context.get('auth_token')
-        elif 'st2' in cfg.CONF and 'auth_token' in cfg.CONF.st2:
-            token = cfg.CONF.st2.auth_token
 
         body = {
             'action': self.ref,
