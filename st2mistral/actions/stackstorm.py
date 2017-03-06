@@ -80,7 +80,7 @@ class St2Action(base.Action):
             )
         )
 
-        endpoint = self.st2_context['api_url'] + '/actionexecutions'
+        endpoint = self.st2_context['api_url'] + '/executions'
 
         st2_action_context = {
             'parent': self.st2_context.get('parent'),
