@@ -99,7 +99,7 @@ class St2Action(base.Action):
         body = {
             'action': self.ref,
             'callback': {
-                'source': 'mistral',
+                'source': 'mistral_v2',
                 'url': _build_callback_url(self.action_context)
             }
         }
