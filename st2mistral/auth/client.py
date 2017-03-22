@@ -36,6 +36,11 @@ class St2AuthHandler(auth.AuthHandler):
         if not isinstance(req, dict):
             raise TypeError('The input "req" is not typeof dict.')
 
+        api_key = req.get('api_key')
+
+        if not api_key:
+            api_key = os.environ.get('ST2_API_KEY')
+
         auth_token = req.get('auth_token')
 
         if not auth_token:
@@ -43,7 +48,7 @@ class St2AuthHandler(auth.AuthHandler):
 
         auth_response = {
             'mistral_url': req.get('mistral_url'),
-            api.AUTH_TOKEN: auth_token,
+            api.AUTH_TOKEN: api_key or auth_token,
             api.CACERT: req.get('cacert'),
             api.INSECURE: req.get('insecure')
         }

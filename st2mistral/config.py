@@ -24,12 +24,17 @@ st2_opts = [
     cfg.StrOpt(
         'auth_url',
         default='https://localhost/auth',
-        help='Auth endpoint for st2.'
+        help='Auth endpoint for validating auth token.'
+    ),
+    cfg.StrOpt(
+        'api_url',
+        default='http://localhost/api',
+        help='API endpoint for validating API keys.'
     ),
     cfg.StrOpt(
         'api_key',
-        help='API key to authenticate with the auth '
-             'endpoint for token validation.'
+        help='API key to authenticate with the st2 auth '
+             'endpoint for token or API key validation.'
     ),
     cfg.IntOpt(
         'token_ttl_sec',
