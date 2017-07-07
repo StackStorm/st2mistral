@@ -24,8 +24,11 @@ config.register_opts()
 from mistral import exceptions as exc
 from st2mistral.utils import http
 
-
 LOG = logging.getLogger(__name__)
+
+
+def testfunc_(context, key):
+    return "FOOBAR"
 
 
 def st2kv_(context, key):
