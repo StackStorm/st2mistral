@@ -21,9 +21,7 @@ __all__ = [
 
 
 def to_human_time_from_seconds(seconds):
-    """
-    Given a time value in seconds, this function returns
-    a fuzzy version like 3m5s.
+    """Given a time value in seconds, this function returns a fuzzy version like 3m5s.
 
     :param time_seconds: Time specified in seconds.
     :type time_seconds: ``int`` or ``long`` or ``float``
@@ -37,8 +35,7 @@ def to_human_time_from_seconds(seconds):
 
 
 def _get_human_time(seconds):
-    """
-    Takes number of seconds as input and returns a string of form '1h3m5s'.
+    """Takes number of seconds as input and returns a string of form '1h3m5s'.
 
     :param seconds: Number of seconds.
     :type seconds: ``int`` or ``long`` or ``float``

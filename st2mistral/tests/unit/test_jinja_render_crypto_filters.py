@@ -16,7 +16,9 @@
 # from oslo_config import cfg
 
 # from st2tests.base import CleanDbTestCase
-# from st2common.constants.keyvalue import FULL_SYSTEM_SCOPE, SYSTEM_SCOPE, DATASTORE_PARENT_SCOPE
+# from st2common.constants.keyvalue import FULL_SYSTEM_SCOPE
+# from st2common.constants.keyvalue import SYSTEM_SCOPE
+# from st2common.constants.keyvalue import DATASTORE_PARENT_SCOPE
 # from st2common.models.db.keyvalue import KeyValuePairDB
 # from st2common.persistence.keyvalue import KeyValuePair
 # from st2common.services.keyvalues import KeyValueLookup
@@ -25,7 +27,7 @@
 
 import unittest2
 
-# unittest2.TestCase
+
 class JinjaUtilsDecryptTestCase(unittest2.TestCase):
 
     # Commented out for now because this will take additional work

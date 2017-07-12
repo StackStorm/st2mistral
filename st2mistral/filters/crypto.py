@@ -24,7 +24,7 @@ __all__ = [
 
 
 def decrypt_kv(value):
-    return value  #disabling for now to get other tests passing
+    return value  # TODO(mierdin) disabling for now to get other tests passing
     # if isinstance(value, KeyValueLookup):
     #     # Since this is a filter the incoming value is still a KeyValueLookup
     #     # object as the jinja rendering is not yet complete. So we cast

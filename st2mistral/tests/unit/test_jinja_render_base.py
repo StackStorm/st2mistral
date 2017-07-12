@@ -19,14 +19,14 @@ import unittest2
 class JinjaFilterTestCase(unittest2.TestCase):
 
     def get_filters(self):
+        from st2mistral.filters import complex_type
         from st2mistral.filters import crypto
         from st2mistral.filters import data
-        from st2mistral.filters import regex
-        from st2mistral.filters import complex_type
-        from st2mistral.filters import time
-        from st2mistral.filters import version
         from st2mistral.filters import json_escape
+        from st2mistral.filters import regex
+        from st2mistral.filters import time
         from st2mistral.filters import use_none
+        from st2mistral.filters import version
 
         return {
             'decrypt_kv': crypto.decrypt_kv,
@@ -57,13 +57,12 @@ class JinjaFilterTestCase(unittest2.TestCase):
         }
 
     def get_jinja_environment(self, allow_undefined=False, trim_blocks=True, lstrip_blocks=True):
-        '''
-        jinja2.Environment object that is setup with right behaviors and custom filters.
+        """jinja2.Environment object that is setup with right behaviors and custom filters.
 
         :param strict_undefined: If should allow undefined variables in templates
         :type strict_undefined: ``bool``
 
-        '''
+        """
         # Late import to avoid very expensive in-direct import (~1 second) when this function
         # is not called / used
         import jinja2

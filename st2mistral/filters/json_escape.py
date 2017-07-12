@@ -21,7 +21,7 @@ __all__ = [
 
 
 def json_escape(value):
-    """ Adds escape sequences to problematic characters in the string
+    """Adds escape sequences to problematic characters in the string
 
     This filter simply passes the value to json.dumps
     as a convenient way of escaping characters in it
