@@ -13,23 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# from oslo_config import cfg
-
-# from st2common.services.keyvalues import KeyValueLookup
-# from st2common.util.crypto import read_crypto_key, symmetric_decrypt
-
-__all__ = [
-    'decrypt_kv'
-]
+from st2mistral.tests.unit import test_jinja_render_base as base
 
 
-def decrypt_kv(value):
-    return value  #disabling for now to get other tests passing
-    # if isinstance(value, KeyValueLookup):
-    #     # Since this is a filter the incoming value is still a KeyValueLookup
-    #     # object as the jinja rendering is not yet complete. So we cast
-    #     # the KeyValueLookup object to a simple string before decrypting.
-    #     value = str(value)
-    # crypto_key_path = cfg.CONF.keyvalue.encryption_key_path
-    # crypto_key = read_crypto_key(key_path=crypto_key_path)
-    # return symmetric_decrypt(decrypt_key=crypto_key, ciphertext=value)
+class JinjaUtilsTimeFilterTestCase(base.JinjaFilterTestCase):
+
+    def test_to_human_time_filter(self):
+        env = self.get_jinja_environment()
+
+        template = '{{k1 | to_human_time_from_seconds}}'
+        actual = env.from_string(template).render({'k1': 12345})
+        self.assertEqual(actual, '3h25m45s')
+
+        actual = env.from_string(template).render({'k1': 0})
+        self.assertEqual(actual, '0s')
+
+        self.assertRaises(AssertionError, env.from_string(template).render,
+                          {'k1': 'stuff'})
