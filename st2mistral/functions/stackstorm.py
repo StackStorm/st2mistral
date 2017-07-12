@@ -24,18 +24,7 @@ config.register_opts()
 from mistral import exceptions as exc
 from st2mistral.utils import http
 
-
 LOG = logging.getLogger(__name__)
-
-
-# Magic string to which None type is serialized when using use_none filter
-NONE_MAGIC_VALUE = '%*****__%NONE%__*****%'
-
-
-def use_none(value):
-    if value is None:
-        return NONE_MAGIC_VALUE
-    return value
 
 
 def st2kv_(context, key):

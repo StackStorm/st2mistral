@@ -26,12 +26,7 @@ class JinjaFilterTestCase(unittest2.TestCase):
         from st2mistral.filters import time
         from st2mistral.filters import version
         from st2mistral.filters import json_escape
-
-        # Commented out for now to bypass module-level "config.register_opts()" in
-        # st2mistral/functions/stackstorm.py
-        # (requires mistral to be installed at test time)
-        # Likely going to just move this filter to it's own file
-        # from st2mistral.functions.stackstorm import use_none
+        from st2mistral.filters import use_none
 
         return {
             'decrypt_kv': crypto.decrypt_kv,
@@ -56,7 +51,7 @@ class JinjaFilterTestCase(unittest2.TestCase):
             'version_bump_minor': version.version_bump_minor,
             'version_bump_patch': version.version_bump_patch,
             'version_strip_patch': version.version_strip_patch,
-            # 'use_none': use_none,
+            'use_none': use_none.use_none,
 
             'json_escape': json_escape.json_escape
         }
