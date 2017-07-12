@@ -13,36 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-import six
 import unittest2
-
-# from st2common import log as logging
-# from st2common.util.compat import to_unicode
-
-
-# __all__ = [
-#     'get_jinja_environment',
-#     'render_values',
-#     'is_jinja_expression'
-# ]
-
-# # Magic string to which None type is serialized when using use_none filter
-# NONE_MAGIC_VALUE = '%*****__%NONE%__*****%'
-
-# JINJA_EXPRESSIONS_START_MARKERS = [
-#     '{{',
-#     '{%'
-# ]
-
-# LOG = logging.getLogger(__name__)
-
-
-# def use_none(value):
-#     if value is None:
-#         return NONE_MAGIC_VALUE
-
-#     return value
 
 
 class JinjaFilterTestCase(unittest2.TestCase):
@@ -111,79 +82,3 @@ class JinjaFilterTestCase(unittest2.TestCase):
         env.filters.update(self.get_filters())
         env.tests['in'] = lambda item, list: item in list
         return env
-
-
-def render_values(mapping=None, context=None, allow_undefined=False):
-    """
-    Render an incoming mapping using context provided in context using Jinja2. Returns a dict
-    containing rendered mapping.
-
-    :param mapping: Input as a dictionary of key value pairs.
-    :type mapping: ``dict``
-
-    :param context: Context to be used for dictionary.
-    :type context: ``dict``
-
-    :rtype: ``dict``
-    """
-
-    if not context or not mapping:
-        return mapping
-
-    # Add in special __context variable that provides an easy way to get access to entire context.
-    # This mean __context is a reserve key word although backwards compat is preserved by making
-    # sure that real context is updated later and therefore will override the __context value.
-    super_context = {}
-    super_context['__context'] = context
-    super_context.update(context)
-
-    env = get_jinja_environment(allow_undefined=allow_undefined)
-    rendered_mapping = {}
-    for k, v in six.iteritems(mapping):
-        # jinja2 works with string so transform list and dict to strings.
-        reverse_json_dumps = False
-        if isinstance(v, dict) or isinstance(v, list):
-            v = json.dumps(v)
-            reverse_json_dumps = True
-        else:
-            # Special case for text type to handle unicode
-            if isinstance(v, six.string_types):
-                v = to_unicode(v)
-            else:
-                # Other types (e.g. boolean, etc.)
-                v = str(v)
-
-        try:
-            LOG.info('Rendering string %s. Super context=%s', v, super_context)
-            rendered_v = env.from_string(v).render(super_context)
-        except Exception as e:
-            # Attach key and value which failed the rendering
-            e.key = k
-            e.value = v
-            raise e
-
-        # no change therefore no templatization so pick params from original to retain
-        # original type
-        if rendered_v == v:
-            rendered_mapping[k] = mapping[k]
-            continue
-        if reverse_json_dumps:
-            rendered_v = json.loads(rendered_v)
-        rendered_mapping[k] = rendered_v
-    LOG.info('Mapping: %s, rendered_mapping: %s, context: %s', mapping, rendered_mapping, context)
-    return rendered_mapping
-
-
-def is_jinja_expression(value):
-    """
-    Function which very simplisticly detect if the provided value contains or is a Jinja
-    expression.
-    """
-    if not value or not isinstance(value, six.string_types):
-        return False
-
-    for marker in JINJA_EXPRESSIONS_START_MARKERS:
-        if marker in value:
-            return True
-
-    return False
