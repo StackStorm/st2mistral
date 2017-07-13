@@ -20,7 +20,6 @@ class JinjaFilterTestCase(unittest2.TestCase):
 
     def get_filters(self):
         from st2mistral.filters import complex_type
-        from st2mistral.filters import crypto
         from st2mistral.filters import data
         from st2mistral.filters import json_escape
         from st2mistral.filters import regex
@@ -29,7 +28,6 @@ class JinjaFilterTestCase(unittest2.TestCase):
         from st2mistral.filters import version
 
         return {
-            'decrypt_kv': crypto.decrypt_kv,
             'to_json_string': data.to_json_string,
             'to_yaml_string': data.to_yaml_string,
 
