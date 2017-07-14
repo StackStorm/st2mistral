@@ -33,12 +33,16 @@ class JinjaFilterTestCase(unittest2.TestCase):
 
             'to_complex': complex_type.to_complex,
 
+            'json_escape': json_escape.json_escape,
+
             'regex_match': regex.regex_match,
             'regex_replace': regex.regex_replace,
             'regex_search': regex.regex_search,
             'regex_substring': regex.regex_substring,
 
             'to_human_time_from_seconds': time.to_human_time_from_seconds,
+
+            'use_none': use_none.use_none,
 
             'version_compare': version.version_compare,
             'version_more_than': version.version_more_than,
@@ -48,10 +52,7 @@ class JinjaFilterTestCase(unittest2.TestCase):
             'version_bump_major': version.version_bump_major,
             'version_bump_minor': version.version_bump_minor,
             'version_bump_patch': version.version_bump_patch,
-            'version_strip_patch': version.version_strip_patch,
-            'use_none': use_none.use_none,
-
-            'json_escape': json_escape.json_escape
+            'version_strip_patch': version.version_strip_patch
         }
 
     def get_jinja_environment(self, allow_undefined=False, trim_blocks=True, lstrip_blocks=True):
