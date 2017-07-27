@@ -25,9 +25,18 @@ class TestCaseYaqlComplex(base.YaqlFilterTestCase):
 
     def test_to_complex(self):
 
-    	obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
+        obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
         result = YAQL_ENGINE('to_complex($.k1)').evaluate(
             context=self.get_yaql_context({'k1': obj})
         )
         actual_obj = json.loads(result)
         self.assertDictEqual(obj, actual_obj)
+
+class TestCaseYaqlTime(base.YaqlFilterTestCase):
+
+    def test_to_human_time_from_seconds(self):
+
+        result = YAQL_ENGINE('to_human_time_from_seconds(12345)').evaluate(
+            context=self.get_yaql_context({})
+        )
+        self.assertEqual(result, '3h25m45s')
