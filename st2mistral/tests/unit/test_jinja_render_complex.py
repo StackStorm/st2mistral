@@ -15,7 +15,7 @@
 
 import json
 
-from st2mistral.tests.unit import test_jinja_render_base as base
+from st2mistral.tests.unit import test_filter_base as base
 
 
 class JinjaUtilsToComplexFilterTestCase(base.JinjaFilterTestCase):
