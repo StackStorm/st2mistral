@@ -16,6 +16,8 @@
 import unittest2
 import yaql
 
+ROOT_YAQL_CONTEXT = None
+
 
 def get_filters():
     from st2mistral.filters import complex_type
@@ -77,3 +79,30 @@ class JinjaFilterTestCase(unittest2.TestCase):
         env.filters.update(get_filters())
         env.tests['in'] = lambda item, list: item in list
         return env
+
+
+class YaqlFilterTestCase(unittest2.TestCase):
+
+    def get_yaql_context(self, data_context):
+        global ROOT_YAQL_CONTEXT
+
+        if not ROOT_YAQL_CONTEXT:
+            ROOT_YAQL_CONTEXT = yaql.create_context()
+
+            self._register_yaql_functions(ROOT_YAQL_CONTEXT)
+
+        new_ctx = ROOT_YAQL_CONTEXT.create_child_context()
+        new_ctx['$'] = data_context
+
+        if isinstance(data_context, dict):
+            new_ctx['__env'] = data_context.get('__env')
+            new_ctx['__execution'] = data_context.get('__execution')
+            new_ctx['__task_execution'] = data_context.get('__task_execution')
+
+        return new_ctx
+
+    def _register_yaql_functions(self, yaql_ctx):
+        functions = get_filters()
+
+        for name in functions:
+            yaql_ctx.register_function(functions[name], name=name)
