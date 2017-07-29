@@ -18,7 +18,7 @@ __all__ = [
 ]
 
 
-# Magic string to which None type is serialized when using use_none filter
+# Magic string to which None type is serialized when using use_none function
 NONE_MAGIC_VALUE = '%*****__%NONE%__*****%'
 
 

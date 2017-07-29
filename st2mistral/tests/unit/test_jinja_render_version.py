@@ -14,10 +14,10 @@
 # limitations under the License.
 
 
-from st2mistral.tests.unit import test_filter_base as base
+from st2mistral.tests.unit import test_function_base as base
 
 
-class JinjaUtilsVersionsFilterTestCase(base.JinjaFilterTestCase):
+class JinjaUtilsVersionsFunctionTestCase(base.JinjaFunctionTestCase):
 
     def test_version_compare(self):
         env = self.get_jinja_environment()

@@ -16,13 +16,13 @@
 import json
 import yaml
 
-from st2mistral.tests.unit import test_filter_base as base
+from st2mistral.tests.unit import test_function_base as base
 
 from yaql.language import factory
 YAQL_ENGINE = factory.YaqlFactory().create()
 
 
-class TestCaseYaqlComplex(base.YaqlFilterTestCase):
+class TestCaseYaqlComplex(base.YaqlFunctionTestCase):
 
     def test_to_complex(self):
 
@@ -34,9 +34,9 @@ class TestCaseYaqlComplex(base.YaqlFilterTestCase):
         self.assertDictEqual(obj, actual_obj)
 
 
-class TestCaseYaqlData(base.YaqlFilterTestCase):
+class TestCaseYaqlData(base.YaqlFunctionTestCase):
 
-    def test_filter_to_json_string(self):
+    def test_function_to_json_string(self):
         obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
         result = YAQL_ENGINE('to_json_string($.k1)').evaluate(
             context=self.get_yaql_context({'k1': obj})
@@ -45,7 +45,7 @@ class TestCaseYaqlData(base.YaqlFilterTestCase):
         self.assertDictEqual(obj, actual_obj)
 
 
-    def test_filter_to_yaml_string(self):
+    def test_function_to_yaml_string(self):
         obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
         result = YAQL_ENGINE('to_yaml_string($.k1)').evaluate(
             context=self.get_yaql_context({'k1': obj})
@@ -54,7 +54,7 @@ class TestCaseYaqlData(base.YaqlFilterTestCase):
         self.assertDictEqual(obj, actual_obj)
 
 
-class TestCaseYaqlJsonEscape(base.YaqlFilterTestCase):
+class TestCaseYaqlJsonEscape(base.YaqlFunctionTestCase):
 
     def test_doublequotes(self):
         actual = YAQL_ENGINE('json_escape($.k1)').evaluate(
@@ -106,9 +106,9 @@ class TestCaseYaqlJsonEscape(base.YaqlFilterTestCase):
         self.assertEqual(actual, expected)
 
 
-class TestCaseYaqlRegex(base.YaqlFilterTestCase):
+class TestCaseYaqlRegex(base.YaqlFunctionTestCase):
 
-    def test_filters_regex_match(self):
+    def test_functions_regex_match(self):
         context = {
             'k1': 'xyz',
             'pattern': u'x'
@@ -136,7 +136,7 @@ class TestCaseYaqlRegex(base.YaqlFilterTestCase):
         )
         self.assertTrue(result)
 
-    def test_filters_regex_replace(self):
+    def test_functions_regex_replace(self):
         context = {
             'k1': u'xyz',
             'pattern': u'x',
@@ -157,7 +157,7 @@ class TestCaseYaqlRegex(base.YaqlFilterTestCase):
         )
         self.assertEqual(actual, 'color socks and color shoes')
 
-    def test_filters_regex_search(self):
+    def test_functions_regex_search(self):
         context = {
             'k1': 'xyz',
             'pattern': u'x'
@@ -186,7 +186,7 @@ class TestCaseYaqlRegex(base.YaqlFilterTestCase):
         self.assertTrue(result)
 
 
-    def test_filters_regex_substring(self):
+    def test_functions_regex_substring(self):
 
         # Normal (match)
         context = {
@@ -230,7 +230,7 @@ class TestCaseYaqlRegex(base.YaqlFilterTestCase):
             )
 
 
-class TestCaseYaqlTime(base.YaqlFilterTestCase):
+class TestCaseYaqlTime(base.YaqlFunctionTestCase):
 
     def test_to_human_time_from_seconds(self):
 

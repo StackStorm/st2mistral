@@ -19,14 +19,14 @@ import yaql
 ROOT_YAQL_CONTEXT = None
 
 
-def get_filters():
-    from st2mistral.filters import complex_type
-    from st2mistral.filters import data
-    from st2mistral.filters import json_escape
-    from st2mistral.filters import regex
-    from st2mistral.filters import time
-    from st2mistral.filters import use_none
-    from st2mistral.filters import version
+def get_functions():
+    from st2mistral.functions import complex_type
+    from st2mistral.functions import data
+    from st2mistral.functions import json_escape
+    from st2mistral.functions import regex
+    from st2mistral.functions import time
+    from st2mistral.functions import use_none
+    from st2mistral.functions import version
 
     return {
         'json_escape': json_escape.json_escape,
@@ -51,10 +51,10 @@ def get_filters():
     }
 
 
-class JinjaFilterTestCase(unittest2.TestCase):
+class JinjaFunctionTestCase(unittest2.TestCase):
 
     def get_jinja_environment(self, allow_undefined=False, trim_blocks=True, lstrip_blocks=True):
-        """jinja2.Environment object that is setup with right behaviors and custom filters.
+        """jinja2.Environment object that is setup with right behaviors and custom functions.
 
         :param strict_undefined: If should allow undefined variables in templates
         :type strict_undefined: ``bool``
@@ -75,7 +75,7 @@ class JinjaFilterTestCase(unittest2.TestCase):
         return env
 
 
-class YaqlFilterTestCase(unittest2.TestCase):
+class YaqlFunctionTestCase(unittest2.TestCase):
 
     def get_yaql_context(self, data_context):
         global ROOT_YAQL_CONTEXT
@@ -96,7 +96,7 @@ class YaqlFilterTestCase(unittest2.TestCase):
         return new_ctx
 
     def _register_yaql_functions(self, yaql_ctx):
-        functions = get_filters()
+        functions = get_functions()
 
         for name in functions:
             yaql_ctx.register_function(functions[name], name=name)

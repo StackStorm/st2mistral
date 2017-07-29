@@ -13,12 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from st2mistral.tests.unit import test_filter_base as base
+from st2mistral.tests.unit import test_function_base as base
 
 
-class JinjaUtilsRegexFilterTestCase(base.JinjaFilterTestCase):
+class JinjaUtilsRegexFunctionTestCase(base.JinjaFunctionTestCase):
 
-    def test_filters_regex_match(self):
+    def test_functions_regex_match(self):
         env = self.get_jinja_environment()
 
         template = '{{k1 | regex_match("x")}}'
@@ -36,7 +36,7 @@ class JinjaUtilsRegexFilterTestCase(base.JinjaFilterTestCase):
         expected = 'True'
         self.assertEqual(actual, expected)
 
-    def test_filters_regex_replace(self):
+    def test_functions_regex_replace(self):
         env = self.get_jinja_environment()
 
         template = '{{k1 | regex_replace("x", "y")}}'
@@ -49,7 +49,7 @@ class JinjaUtilsRegexFilterTestCase(base.JinjaFilterTestCase):
         expected = 'color socks and color shoes'
         self.assertEqual(actual, expected)
 
-    def test_filters_regex_search(self):
+    def test_functions_regex_search(self):
         env = self.get_jinja_environment()
 
         template = '{{k1 | regex_search("x")}}'
@@ -67,7 +67,7 @@ class JinjaUtilsRegexFilterTestCase(base.JinjaFilterTestCase):
         expected = 'True'
         self.assertEqual(actual, expected)
 
-    def test_filters_regex_substring(self):
+    def test_functions_regex_substring(self):
         env = self.get_jinja_environment()
 
         # Normal (match)

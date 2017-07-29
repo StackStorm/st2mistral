@@ -15,12 +15,12 @@
 
 import json
 
-from st2mistral.tests.unit import test_filter_base as base
+from st2mistral.tests.unit import test_function_base as base
 
 
-class JinjaUtilsToComplexFilterTestCase(base.JinjaFilterTestCase):
+class JinjaUtilsToComplexFunctionTestCase(base.JinjaFunctionTestCase):
 
-    def test_filter_to_complex(self):
+    def test_function_to_complex(self):
         env = self.get_jinja_environment()
         obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
 
