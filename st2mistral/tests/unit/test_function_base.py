@@ -70,7 +70,7 @@ class JinjaFunctionTestCase(unittest2.TestCase):
             trim_blocks=trim_blocks,
             lstrip_blocks=lstrip_blocks
         )
-        env.filters.update(get_filters())
+        env.filters.update(get_functions())
         env.tests['in'] = lambda item, list: item in list
         return env
 
