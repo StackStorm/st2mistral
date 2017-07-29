@@ -20,7 +20,6 @@ ROOT_YAQL_CONTEXT = None
 
 
 def get_functions():
-    from st2mistral.functions import complex_type
     from st2mistral.functions import data
     from st2mistral.functions import json_escape
     from st2mistral.functions import regex
@@ -34,7 +33,7 @@ def get_functions():
         'regex_replace': regex.regex_replace,
         'regex_search': regex.regex_search,
         'regex_substring': regex.regex_substring,
-        'to_complex': complex_type.to_complex,
+        'to_complex': data.to_complex,
         'to_human_time_from_seconds': time.to_human_time_from_seconds,
         'to_json_string': data.to_json_string,
         'to_yaml_string': data.to_yaml_string,

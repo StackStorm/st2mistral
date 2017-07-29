@@ -17,9 +17,14 @@ import json
 import yaml
 
 __all__ = [
+    'to_complex',
     'to_json_string',
-    'to_yaml_string',
+    'to_yaml_string'
 ]
+
+
+def to_complex(value):
+    return json.dumps(value)
 
 
 def to_json_string(value, indent=4, sort_keys=False, separators=(',', ':')):
