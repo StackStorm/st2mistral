@@ -22,7 +22,7 @@ __all__ = [
 NONE_MAGIC_VALUE = '%*****__%NONE%__*****%'
 
 
-def use_none(value):
+def use_none(context, value):
     if value is None:
         return NONE_MAGIC_VALUE
     return value

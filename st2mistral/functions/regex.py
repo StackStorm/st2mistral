@@ -28,14 +28,14 @@ __all__ = [
 def _get_regex_flags(ignorecase=False):
     return re.I if ignorecase else 0
 
-def regex_match(value, pattern=u'', ignorecase=False):
+def regex_match(context, value, pattern=u'', ignorecase=False):
     if not isinstance(value, six.string_types):
         value = str(value)
     flags = _get_regex_flags(ignorecase)
     return bool(re.match(pattern, value, flags))
 
 
-def regex_replace(value=u'', pattern=u'', replacement=u'', ignorecase=False):
+def regex_replace(context, value=u'', pattern=u'', replacement=u'', ignorecase=False):
     if not isinstance(value, six.string_types):
         value = str(value)
     flags = _get_regex_flags(ignorecase)
@@ -43,14 +43,14 @@ def regex_replace(value=u'', pattern=u'', replacement=u'', ignorecase=False):
     return regex.sub(replacement, value)
 
 
-def regex_search(value, pattern=u'', ignorecase=False):
+def regex_search(context, value, pattern=u'', ignorecase=False):
     if not isinstance(value, six.string_types):
         value = str(value)
     flags = _get_regex_flags(ignorecase)
     return bool(re.search(pattern, value, flags))
 
 
-def regex_substring(value, pattern=u'', result_index=0, ignorecase=False):
+def regex_substring(context, value, pattern=u'', result_index=0, ignorecase=False):
     if not isinstance(value, six.string_types):
         value = str(value)
     flags = _get_regex_flags(ignorecase)

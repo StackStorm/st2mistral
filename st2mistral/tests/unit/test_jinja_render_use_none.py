@@ -20,14 +20,10 @@ from st2mistral.tests.unit import test_function_base as base
 class JinjaUseNoneFunctionTestCase(base.JinjaFunctionTestCase):
 
     def test_use_none(self):
-        env = self.get_jinja_environment()
+        template = '{{ use_none(_.test_var) }}'
+        actual = self.eval_expression(template, {'test_var': None})
+        self.assertEqual(actual, '%*****__%NONE%__*****%')
 
-        template = '{{test_var | use_none}}'
-        actual = env.from_string(template).render({'test_var': None})
-        expected = '%*****__%NONE%__*****%'
-        self.assertEqual(actual, expected)
-
-        template = '{{test_var | use_none}}'
-        actual = env.from_string(template).render({'test_var': 'foobar'})
-        expected = 'foobar'
-        self.assertEqual(actual, expected)
+        template = '{{ use_none(_.test_var) }}'
+        actual = self.eval_expression(template, {'test_var': 'foobar'})
+        self.assertEqual(actual, 'foobar')

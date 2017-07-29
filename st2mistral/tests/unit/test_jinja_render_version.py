@@ -20,132 +20,92 @@ from st2mistral.tests.unit import test_function_base as base
 class JinjaUtilsVersionsFunctionTestCase(base.JinjaFunctionTestCase):
 
     def test_version_compare(self):
-        env = self.get_jinja_environment()
+        template = '{{ version_compare(_.version, "0.10.0") }}'
+        result = self.eval_expression(template, {'version': '0.9.0'})
+        self.assertEqual(result, '-1')
 
-        template = '{{version | version_compare("0.10.0")}}'
-        actual = env.from_string(template).render({'version': '0.9.0'})
-        expected = '-1'
-        self.assertEqual(actual, expected)
+        template = '{{ version_compare(_.version, "0.10.0") }}'
+        result = self.eval_expression(template, {'version': '0.10.1'})
+        self.assertEqual(result, '1')
 
-        template = '{{version | version_compare("0.10.0")}}'
-        actual = env.from_string(template).render({'version': '0.10.1'})
-        expected = '1'
-        self.assertEqual(actual, expected)
-
-        template = '{{version | version_compare("0.10.0")}}'
-        actual = env.from_string(template).render({'version': '0.10.0'})
-        expected = '0'
-        self.assertEqual(actual, expected)
+        template = '{{ version_compare(_.version, "0.10.0") }}'
+        result = self.eval_expression(template, {'version': '0.10.0'})
+        self.assertEqual(result, '0')
 
     def test_version_more_than(self):
-        env = self.get_jinja_environment()
+        template = '{{ version_more_than(_.version, "0.10.0") }}'
+        result = self.eval_expression(template, {'version': '0.9.0'})
+        self.assertEqual(result, 'False')
 
-        template = '{{version | version_more_than("0.10.0")}}'
-        actual = env.from_string(template).render({'version': '0.9.0'})
-        expected = 'False'
-        self.assertEqual(actual, expected)
+        template = '{{ version_more_than(_.version, "0.10.0") }}'
+        result = self.eval_expression(template, {'version': '0.10.1'})
+        self.assertEqual(result, 'True')
 
-        template = '{{version | version_more_than("0.10.0")}}'
-        actual = env.from_string(template).render({'version': '0.10.1'})
-        expected = 'True'
-        self.assertEqual(actual, expected)
-
-        template = '{{version | version_more_than("0.10.0")}}'
-        actual = env.from_string(template).render({'version': '0.10.0'})
-        expected = 'False'
-        self.assertEqual(actual, expected)
+        template = '{{ version_more_than(_.version, "0.10.0") }}'
+        result = self.eval_expression(template, {'version': '0.10.0'})
+        self.assertEqual(result, 'False')
 
     def test_version_less_than(self):
-        env = self.get_jinja_environment()
+        template = '{{ version_less_than(_.version, "0.10.0") }}'
+        result = self.eval_expression(template, {'version': '0.9.0'})
+        self.assertEqual(result, 'True')
 
-        template = '{{version | version_less_than("0.10.0")}}'
-        actual = env.from_string(template).render({'version': '0.9.0'})
-        expected = 'True'
-        self.assertEqual(actual, expected)
+        template = '{{ version_less_than(_.version, "0.10.0") }}'
+        result = self.eval_expression(template, {'version': '0.10.1'})
+        self.assertEqual(result, 'False')
 
-        template = '{{version | version_less_than("0.10.0")}}'
-        actual = env.from_string(template).render({'version': '0.10.1'})
-        expected = 'False'
-        self.assertEqual(actual, expected)
-
-        template = '{{version | version_less_than("0.10.0")}}'
-        actual = env.from_string(template).render({'version': '0.10.0'})
-        expected = 'False'
-        self.assertEqual(actual, expected)
+        template = '{{ version_less_than(_.version, "0.10.0") }}'
+        result = self.eval_expression(template, {'version': '0.10.0'})
+        self.assertEqual(result, 'False')
 
     def test_version_equal(self):
-        env = self.get_jinja_environment()
+        template = '{{ version_equal(_.version, "0.10.0") }}'
+        result = self.eval_expression(template, {'version': '0.9.0'})
+        self.assertEqual(result, 'False')
 
-        template = '{{version | version_equal("0.10.0")}}'
-        actual = env.from_string(template).render({'version': '0.9.0'})
-        expected = 'False'
-        self.assertEqual(actual, expected)
+        template = '{{ version_equal(_.version, "0.10.0") }}'
+        result = self.eval_expression(template, {'version': '0.10.1'})
+        self.assertEqual(result, 'False')
 
-        template = '{{version | version_equal("0.10.0")}}'
-        actual = env.from_string(template).render({'version': '0.10.1'})
-        expected = 'False'
-        self.assertEqual(actual, expected)
-
-        template = '{{version | version_equal("0.10.0")}}'
-        actual = env.from_string(template).render({'version': '0.10.0'})
-        expected = 'True'
-        self.assertEqual(actual, expected)
+        template = '{{ version_equal(_.version, "0.10.0") }}'
+        result = self.eval_expression(template, {'version': '0.10.0'})
+        self.assertEqual(result, 'True')
 
     def test_version_match(self):
-        env = self.get_jinja_environment()
+        template = '{{ version_match(_.version, ">0.10.0") }}'
+        result = self.eval_expression(template, {'version': '0.10.1'})
+        self.assertEqual(result, 'True')
+        result = self.eval_expression(template, {'version': '0.1.1'})
+        self.assertEqual(result, 'False')
 
-        template = '{{version | version_match(">0.10.0")}}'
-        actual = env.from_string(template).render({'version': '0.10.1'})
-        expected = 'True'
-        self.assertEqual(actual, expected)
-        actual = env.from_string(template).render({'version': '0.1.1'})
-        expected = 'False'
-        self.assertEqual(actual, expected)
+        template = '{{ version_match(_.version, "<0.10.0") }}'
+        result = self.eval_expression(template, {'version': '0.1.0'})
+        self.assertEqual(result, 'True')
+        result = self.eval_expression(template, {'version': '1.1.0'})
+        self.assertEqual(result, 'False')
 
-        template = '{{version | version_match("<0.10.0")}}'
-        actual = env.from_string(template).render({'version': '0.1.0'})
-        expected = 'True'
-        self.assertEqual(actual, expected)
-        actual = env.from_string(template).render({'version': '1.1.0'})
-        expected = 'False'
-        self.assertEqual(actual, expected)
-
-        template = '{{version | version_match("==0.10.0")}}'
-        actual = env.from_string(template).render({'version': '0.10.0'})
-        expected = 'True'
-        self.assertEqual(actual, expected)
-        actual = env.from_string(template).render({'version': '0.10.1'})
-        expected = 'False'
-        self.assertEqual(actual, expected)
+        template = '{{ version_match(_.version, "==0.10.0") }}'
+        result = self.eval_expression(template, {'version': '0.10.0'})
+        self.assertEqual(result, 'True')
+        result = self.eval_expression(template, {'version': '0.10.1'})
+        self.assertEqual(result, 'False')
 
     def test_version_bump_major(self):
-        env = self.get_jinja_environment()
-
-        template = '{{version | version_bump_major}}'
-        actual = env.from_string(template).render({'version': '0.10.1'})
-        expected = '1.0.0'
-        self.assertEqual(actual, expected)
+        template = '{{ version_bump_major(_.version) }}'
+        result = self.eval_expression(template, {'version': '0.10.1'})
+        self.assertEqual(result, '1.0.0')
 
     def test_version_bump_minor(self):
-        env = self.get_jinja_environment()
-
-        template = '{{version | version_bump_minor}}'
-        actual = env.from_string(template).render({'version': '0.10.1'})
-        expected = '0.11.0'
-        self.assertEqual(actual, expected)
+        template = '{{ version_bump_minor(_.version) }}'
+        result = self.eval_expression(template, {'version': '0.10.1'})
+        self.assertEqual(result, '0.11.0')
 
     def test_version_bump_patch(self):
-        env = self.get_jinja_environment()
-
-        template = '{{version | version_bump_patch}}'
-        actual = env.from_string(template).render({'version': '0.10.1'})
-        expected = '0.10.2'
-        self.assertEqual(actual, expected)
+        template = '{{ version_bump_patch(_.version) }}'
+        result = self.eval_expression(template, {'version': '0.10.1'})
+        self.assertEqual(result, '0.10.2')
 
     def test_version_strip_patch(self):
-        env = self.get_jinja_environment()
-
-        template = '{{version | version_strip_patch}}'
-        actual = env.from_string(template).render({'version': '0.10.1'})
-        expected = '0.10'
-        self.assertEqual(actual, expected)
+        template = '{{ version_strip_patch(_.version) }}'
+        result = self.eval_expression(template, {'version': '0.10.1'})
+        self.assertEqual(result, '0.10')

@@ -20,7 +20,7 @@ __all__ = [
 ]
 
 
-def json_escape(value):
+def json_escape(context, value):
     """Adds escape sequences to problematic characters in the string
 
     This function simply passes the value to json.dumps

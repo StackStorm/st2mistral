@@ -23,15 +23,15 @@ __all__ = [
 ]
 
 
-def to_complex(value):
+def to_complex(context, value):
     return json.dumps(value)
 
 
-def to_json_string(value, indent=4, sort_keys=False, separators=(',', ':')):
+def to_json_string(context, value, indent=4, sort_keys=False, separators=(',', ':')):
     return json.dumps(value, indent=indent, separators=separators,
                       sort_keys=sort_keys)
 
 
-def to_yaml_string(value, indent=4, allow_unicode=True):
+def to_yaml_string(context, value, indent=4, allow_unicode=True):
     return yaml.safe_dump(value, indent=indent, allow_unicode=allow_unicode,
                           default_flow_style=False)

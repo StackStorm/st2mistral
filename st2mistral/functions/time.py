@@ -20,7 +20,7 @@ __all__ = [
 ]
 
 
-def to_human_time_from_seconds(seconds):
+def to_human_time_from_seconds(context, seconds):
     """Given a time value in seconds, this function returns a fuzzy version like 3m5s.
 
     :param time_seconds: Time specified in seconds.

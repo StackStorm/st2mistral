@@ -19,14 +19,13 @@ from st2mistral.tests.unit import test_function_base as base
 class JinjaUtilsTimeFunctionTestCase(base.JinjaFunctionTestCase):
 
     def test_to_human_time_function(self):
-        env = self.get_jinja_environment()
 
-        template = '{{k1 | to_human_time_from_seconds}}'
-        actual = env.from_string(template).render({'k1': 12345})
-        self.assertEqual(actual, '3h25m45s')
+        template = '{{ to_human_time_from_seconds(_.k1) }}'
+        result = self.eval_expression(template, {'k1': 12345})
+        self.assertEqual(result, '3h25m45s')
 
-        actual = env.from_string(template).render({'k1': 0})
-        self.assertEqual(actual, '0s')
+        result = self.eval_expression(template, {'k1': 0})
+        self.assertEqual(result, '0s')
 
-        self.assertRaises(AssertionError, env.from_string(template).render,
-                          {'k1': 'stuff'})
+        with self.assertRaises(AssertionError):
+            self.eval_expression(template, {'k1': 'stuff'})

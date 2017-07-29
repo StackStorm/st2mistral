@@ -19,83 +19,73 @@ from st2mistral.tests.unit import test_function_base as base
 class JinjaUtilsRegexFunctionTestCase(base.JinjaFunctionTestCase):
 
     def test_functions_regex_match(self):
-        env = self.get_jinja_environment()
 
-        template = '{{k1 | regex_match("x")}}'
-        actual = env.from_string(template).render({'k1': 'xyz'})
-        expected = 'True'
-        self.assertEqual(actual, expected)
+        template = '{{ regex_match(_.k1, "x") }}'
+        result = self.eval_expression(template, {'k1': 'xyz'})
+        self.assertEqual(result, 'True')
 
-        template = '{{k1 | regex_match("y")}}'
-        actual = env.from_string(template).render({'k1': 'xyz'})
-        expected = 'False'
-        self.assertEqual(actual, expected)
+        template = '{{ regex_match(_.k1, "y") }}'
+        result = self.eval_expression(template, {'k1': 'xyz'})
+        self.assertEqual(result, 'False')
 
-        template = '{{k1 | regex_match("^v(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)$")}}'
-        actual = env.from_string(template).render({'k1': 'v0.10.1'})
-        expected = 'True'
-        self.assertEqual(actual, expected)
+        template = '{{ regex_match(_.k1, "^v(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)$") }}'
+        result = self.eval_expression(template, {'k1': 'v0.10.1'})
+        self.assertEqual(result, 'True')
 
     def test_functions_regex_replace(self):
-        env = self.get_jinja_environment()
 
-        template = '{{k1 | regex_replace("x", "y")}}'
-        actual = env.from_string(template).render({'k1': 'xyz'})
-        expected = 'yyz'
-        self.assertEqual(actual, expected)
+        template = '{{ regex_replace(_.k1, "x", "y") }}'
+        result = self.eval_expression(template, {'k1': 'xyz'})
+        self.assertEqual(result, 'yyz')
 
-        template = '{{k1 | regex_replace("(blue|white|red)", "color")}}'
-        actual = env.from_string(template).render({'k1': 'blue socks and red shoes'})
-        expected = 'color socks and color shoes'
-        self.assertEqual(actual, expected)
+        template = '{{ regex_replace(_.k1, "(blue|white|red)", "color") }}'
+        result = self.eval_expression(template, {'k1': 'blue socks and red shoes'})
+        self.assertEqual(result, 'color socks and color shoes')
 
     def test_functions_regex_search(self):
-        env = self.get_jinja_environment()
 
-        template = '{{k1 | regex_search("x")}}'
-        actual = env.from_string(template).render({'k1': 'xyz'})
-        expected = 'True'
-        self.assertEqual(actual, expected)
+        template = '{{ regex_search(_.k1, "x") }}'
+        result = self.eval_expression(template, {'k1': 'xyz'})
+        self.assertEqual(result, 'True')
 
-        template = '{{k1 | regex_search("y")}}'
-        actual = env.from_string(template).render({'k1': 'xyz'})
-        expected = 'True'
-        self.assertEqual(actual, expected)
+        template = '{{ regex_search(_.k1, "y") }}'
+        result = self.eval_expression(template, {'k1': 'xyz'})
+        self.assertEqual(result, 'True')
 
-        template = '{{k1 | regex_search("^v(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)$")}}'
-        actual = env.from_string(template).render({'k1': 'v0.10.1'})
-        expected = 'True'
-        self.assertEqual(actual, expected)
+        template = '{{ regex_search(_.k1, "^v(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)$") }}'
+        result = self.eval_expression(template, {'k1': 'v0.10.1'})
+        self.assertEqual(result, 'True')
 
     def test_functions_regex_substring(self):
-        env = self.get_jinja_environment()
 
         # Normal (match)
-        template = '{{input_str | regex_substring("([0-9]{3} \w+ (?:Ave|St|Dr))")}}'
-        actual = env.from_string(template).render(
+        template = '{{ regex_substring(_.input_str, "([0-9]{3} \w+ (?:Ave|St|Dr))") }}'
+        result = self.eval_expression(
+            template,
             {'input_str': 'My address is 123 Somewhere Ave. See you soon!'}
         )
-        expected = '123 Somewhere Ave'
-        self.assertEqual(actual, expected)
+        self.assertEqual(result, '123 Somewhere Ave')
 
         # Selecting second match explicitly
-        template = '{{input_str | regex_substring("([0-9]{3} \w+ (?:Ave|St|Dr))", 1)}}'
-        actual = env.from_string(template).render(
+        template = '{{ regex_substring(_.input_str, "([0-9]{3} \w+ (?:Ave|St|Dr))", 1) }}'
+        result = self.eval_expression(
+            template,
             {'input_str': 'Your address is 567 Elsewhere Dr. My address is 123 Somewhere Ave.'}
         )
-        expected = '123 Somewhere Ave'
-        self.assertEqual(actual, expected)
+        self.assertEqual(result, '123 Somewhere Ave')
 
         # Selecting second match explicitly, but doesn't exist
-        template = '{{input_str | regex_substring("([0-9]{3} \w+ (?:Ave|St|Dr))", 1)}}'
+        template = '{{ regex_substring(_.input_str, "([0-9]{3} \w+ (?:Ave|St|Dr))", 1) }}'
         with self.assertRaises(IndexError):
-            actual = env.from_string(template).render(
+            result = self.eval_expression(
+                template,
                 {'input_str': 'Your address is 567 Elsewhere Dr.'}
             )
 
         # No match
-        template = '{{input_str | regex_substring("([0-3]{3} \w+ (?:Ave|St|Dr))")}}'
+        template = '{{ regex_substring(_.input_str, "([0-3]{3} \w+ (?:Ave|St|Dr))") }}'
         with self.assertRaises(IndexError):
-            actual = env.from_string(template).render(
+            result = self.eval_expression(
+                template,
                 {'input_str': 'My address is 986 Somewhere Ave. See you soon!'}
             )

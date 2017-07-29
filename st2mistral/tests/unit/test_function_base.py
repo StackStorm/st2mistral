@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from functools import partial
 import unittest2
 import yaql
 
@@ -51,6 +52,12 @@ def get_functions():
 
 
 class JinjaFunctionTestCase(unittest2.TestCase):
+    """Infrastructure to allow Jinja tests to render expressions like Mistral does
+    """
+
+    def setUp(self):
+        env = self.get_jinja_environment()
+        self._env = env.overlay()
 
     def get_jinja_environment(self, allow_undefined=False, trim_blocks=True, lstrip_blocks=True):
         """jinja2.Environment object that is setup with right behaviors and custom functions.
@@ -72,6 +79,40 @@ class JinjaFunctionTestCase(unittest2.TestCase):
         env.filters.update(get_functions())
         env.tests['in'] = lambda item, list: item in list
         return env
+
+    def eval_expression(self, expression, context):
+
+        ctx = self.get_jinja_context(context)
+        # opts = {'undefined_to_none': False}
+
+        # ctx = expression_utils.get_jinja_context(data_context)
+        result = self._env.from_string(expression).render(**ctx)
+
+        # LOG.debug("Jinja expression result: %s" % result)
+
+
+        # return self._env.compile_expression(expression, **opts)(**ctx)
+        return result
+
+    def get_jinja_context(self, data_context):
+        new_ctx = {
+            '_': data_context
+        }
+
+        self._register_jinja_functions(new_ctx)
+
+        if isinstance(data_context, dict):
+            new_ctx['__env'] = data_context.get('__env')
+            new_ctx['__execution'] = data_context.get('__execution')
+            new_ctx['__task_execution'] = data_context.get('__task_execution')
+
+        return new_ctx
+
+    def _register_jinja_functions(self, jinja_ctx):
+        functions = get_functions()
+
+        for name in functions:
+            jinja_ctx[name] = partial(functions[name], jinja_ctx['_'])
 
 
 class YaqlFunctionTestCase(unittest2.TestCase):

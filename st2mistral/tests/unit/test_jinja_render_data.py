@@ -22,30 +22,22 @@ from st2mistral.tests.unit import test_function_base as base
 class JinjaUtilsDataFunctionTestCase(base.JinjaFunctionTestCase):
 
     def test_function_to_complex(self):
-        env = self.get_jinja_environment()
         obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
-
-        template = '{{k1 | to_complex}}'
-
-        obj_json_str = env.from_string(template).render({'k1': obj})
+        template = '{{ to_complex(_.k1) }}'
+        obj_json_str = self.eval_expression(template, {"k1": obj})
         actual_obj = json.loads(obj_json_str)
         self.assertDictEqual(obj, actual_obj)
 
     def test_function_to_json_string(self):
-        env = self.get_jinja_environment()
         obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
-
-        template = '{{k1 | to_json_string}}'
-
-        obj_json_str = env.from_string(template).render({'k1': obj})
+        template = '{{ to_json_string(_.k1) }}'
+        obj_json_str = self.eval_expression(template, {"k1": obj})
         actual_obj = json.loads(obj_json_str)
         self.assertDictEqual(obj, actual_obj)
 
     def test_function_to_yaml_string(self):
-        env = self.get_jinja_environment()
         obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
-
-        template = '{{k1 | to_yaml_string}}'
-        obj_yaml_str = env.from_string(template).render({'k1': obj})
+        template = '{{ to_yaml_string(_.k1) }}'
+        obj_yaml_str = self.eval_expression(template, {"k1": obj})
         actual_obj = yaml.load(obj_yaml_str)
         self.assertDictEqual(obj, actual_obj)
