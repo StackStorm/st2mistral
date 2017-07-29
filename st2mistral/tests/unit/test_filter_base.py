@@ -29,30 +29,24 @@ def get_filters():
     from st2mistral.filters import version
 
     return {
-        'to_json_string': data.to_json_string,
-        'to_yaml_string': data.to_yaml_string,
-
-        'to_complex': complex_type.to_complex,
-
         'json_escape': json_escape.json_escape,
-
         'regex_match': regex.regex_match,
         'regex_replace': regex.regex_replace,
         'regex_search': regex.regex_search,
         'regex_substring': regex.regex_substring,
-
+        'to_complex': complex_type.to_complex,
         'to_human_time_from_seconds': time.to_human_time_from_seconds,
-
+        'to_json_string': data.to_json_string,
+        'to_yaml_string': data.to_yaml_string,
         'use_none': use_none.use_none,
-
         'version_compare': version.version_compare,
-        'version_more_than': version.version_more_than,
-        'version_less_than': version.version_less_than,
-        'version_equal': version.version_equal,
-        'version_match': version.version_match,
         'version_bump_major': version.version_bump_major,
         'version_bump_minor': version.version_bump_minor,
         'version_bump_patch': version.version_bump_patch,
+        'version_equal': version.version_equal,
+        'version_less_than': version.version_less_than,
+        'version_match': version.version_match,
+        'version_more_than': version.version_more_than,
         'version_strip_patch': version.version_strip_patch
     }
 
