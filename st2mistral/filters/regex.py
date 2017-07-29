@@ -18,8 +18,6 @@ import six
 
 import jinja2
 
-from st2mistral.filters.filter_utils import _intercept_context
-
 __all__ = [
     'regex_match',
     'regex_replace',
@@ -30,7 +28,6 @@ __all__ = [
 def _get_regex_flags(ignorecase=False):
     return re.I if ignorecase else 0
 
-@_intercept_context
 def regex_match(value, pattern=u'', ignorecase=False):
     if not isinstance(value, six.string_types):
         value = str(value)
