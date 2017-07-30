@@ -41,7 +41,7 @@ class JinjaUtilsJsonEscapeTestCase(base.JinjaFunctionTestCase):
 
     def test_newline(self):
         template = '{{ json_escape(_.test_str) }}'
-        result = self.eval_expression(template, {'test_str': 'foo \n bar'}) 
+        result = self.eval_expression(template, {'test_str': 'foo \n bar'})
         self.assertEqual(result, 'foo \\n bar')
 
     def test_carriagereturn(self):

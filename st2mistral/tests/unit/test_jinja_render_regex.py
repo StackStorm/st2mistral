@@ -28,8 +28,10 @@ class JinjaUtilsRegexFunctionTestCase(base.JinjaFunctionTestCase):
         result = self.eval_expression(template, {'k1': 'xyz'})
         self.assertEqual(result, 'False')
 
-        template = '{{ regex_match(_.k1, "^v(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)$") }}'
-        result = self.eval_expression(template, {'k1': 'v0.10.1'})
+        result = self.eval_expression(
+            '{{ regex_match(_.k1, "^v(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)$") }}',
+            {'k1': 'v0.10.1'}
+        )
         self.assertEqual(result, 'True')
 
     def test_functions_regex_replace(self):
@@ -38,8 +40,10 @@ class JinjaUtilsRegexFunctionTestCase(base.JinjaFunctionTestCase):
         result = self.eval_expression(template, {'k1': 'xyz'})
         self.assertEqual(result, 'yyz')
 
-        template = '{{ regex_replace(_.k1, "(blue|white|red)", "color") }}'
-        result = self.eval_expression(template, {'k1': 'blue socks and red shoes'})
+        result = self.eval_expression(
+            '{{ regex_replace(_.k1, "(blue|white|red)", "color") }}',
+            {'k1': 'blue socks and red shoes'}
+        )
         self.assertEqual(result, 'color socks and color shoes')
 
     def test_functions_regex_search(self):
@@ -52,40 +56,42 @@ class JinjaUtilsRegexFunctionTestCase(base.JinjaFunctionTestCase):
         result = self.eval_expression(template, {'k1': 'xyz'})
         self.assertEqual(result, 'True')
 
-        template = '{{ regex_search(_.k1, "^v(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)$") }}'
-        result = self.eval_expression(template, {'k1': 'v0.10.1'})
+        result = self.eval_expression(
+            '{{ regex_search(_.k1, "^v(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)$") }}',
+            {'k1': 'v0.10.1'}
+        )
         self.assertEqual(result, 'True')
 
     def test_functions_regex_substring(self):
 
         # Normal (match)
-        template = '{{ regex_substring(_.input_str, "([0-9]{3} \w+ (?:Ave|St|Dr))") }}'
+        pattern = "([0-9]{3} \w+ (?:Ave|St|Dr))"
         result = self.eval_expression(
-            template,
+            '{{ regex_substring(_.input_str, "%s") }}' % pattern,
             {'input_str': 'My address is 123 Somewhere Ave. See you soon!'}
         )
         self.assertEqual(result, '123 Somewhere Ave')
 
         # Selecting second match explicitly
-        template = '{{ regex_substring(_.input_str, "([0-9]{3} \w+ (?:Ave|St|Dr))", 1) }}'
+        pattern = "([0-9]{3} \w+ (?:Ave|St|Dr))"
         result = self.eval_expression(
-            template,
-            {'input_str': 'Your address is 567 Elsewhere Dr. My address is 123 Somewhere Ave.'}
+            '{{ regex_substring(_.input_str, "%s", 1) }}' % pattern,
+            {'input_str': 'You are at 567 Elsewhere Dr. Im at 123 Foo Ave.'}
         )
-        self.assertEqual(result, '123 Somewhere Ave')
+        self.assertEqual(result, '123 Foo Ave')
 
         # Selecting second match explicitly, but doesn't exist
-        template = '{{ regex_substring(_.input_str, "([0-9]{3} \w+ (?:Ave|St|Dr))", 1) }}'
         with self.assertRaises(IndexError):
+            pattern = "([0-9]{3} \w+ (?:Ave|St|Dr))"
             result = self.eval_expression(
-                template,
+                '{{ regex_substring(_.input_str, "%s", 1) }}' % pattern,
                 {'input_str': 'Your address is 567 Elsewhere Dr.'}
             )
 
         # No match
-        template = '{{ regex_substring(_.input_str, "([0-3]{3} \w+ (?:Ave|St|Dr))") }}'
         with self.assertRaises(IndexError):
+            pattern = "([0-3]{3} \w+ (?:Ave|St|Dr))"
             result = self.eval_expression(
-                template,
+                '{{ regex_substring(_.input_str, "%s") }}' % pattern,
                 {'input_str': 'My address is 986 Somewhere Ave. See you soon!'}
             )

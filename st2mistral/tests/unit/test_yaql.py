@@ -44,7 +44,6 @@ class TestCaseYaqlData(base.YaqlFunctionTestCase):
         actual_obj = json.loads(result)
         self.assertDictEqual(obj, actual_obj)
 
-
     def test_function_to_yaml_string(self):
         obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
         result = YAQL_ENGINE('to_yaml_string($.k1)').evaluate(
@@ -142,7 +141,8 @@ class TestCaseYaqlRegex(base.YaqlFunctionTestCase):
             'pattern': u'x',
             'replacement': u'y'
         }
-        actual = YAQL_ENGINE('regex_replace($.k1, $.pattern, $.replacement)').evaluate(
+        expression = 'regex_replace($.k1, $.pattern, $.replacement)'
+        actual = YAQL_ENGINE(expression).evaluate(
             context=self.get_yaql_context(context)
         )
         self.assertEqual(actual, 'yyz')
@@ -152,7 +152,8 @@ class TestCaseYaqlRegex(base.YaqlFunctionTestCase):
             'pattern': u'(blue|white|red)',
             'replacement': u'color'
         }
-        actual = YAQL_ENGINE('regex_replace($.k1, $.pattern, $.replacement)').evaluate(
+        expression = 'regex_replace($.k1, $.pattern, $.replacement)'
+        actual = YAQL_ENGINE(expression).evaluate(
             context=self.get_yaql_context(context)
         )
         self.assertEqual(actual, 'color socks and color shoes')
@@ -185,7 +186,6 @@ class TestCaseYaqlRegex(base.YaqlFunctionTestCase):
         )
         self.assertTrue(result)
 
-
     def test_functions_regex_substring(self):
 
         # Normal (match)
@@ -193,28 +193,31 @@ class TestCaseYaqlRegex(base.YaqlFunctionTestCase):
             'input_str': 'My address is 123 Somewhere Ave. See you soon!',
             'pattern': u'([0-9]{3} \w+ (?:Ave|St|Dr))'
         }
-        result = YAQL_ENGINE('regex_substring($.input_str, $.pattern)').evaluate(
+        expression = 'regex_substring($.input_str, $.pattern)'
+        result = YAQL_ENGINE(expression).evaluate(
             context=self.get_yaql_context(context)
         )
         self.assertEqual(result, '123 Somewhere Ave')
 
         # Selecting second match explicitly
         context = {
-            'input_str': 'Your address is 567 Elsewhere Dr. My address is 123 Somewhere Ave.',
+            'input_str': 'You are at 567 Elsewhere Dr. Im at 123 Foo Ave.',
             'pattern': u'([0-9]{3} \w+ (?:Ave|St|Dr))'
         }
-        result = YAQL_ENGINE('regex_substring($.input_str, $.pattern, 1)').evaluate(
+        expression = 'regex_substring($.input_str, $.pattern, 1)'
+        result = YAQL_ENGINE(expression).evaluate(
             context=self.get_yaql_context(context)
         )
-        self.assertEqual(result, '123 Somewhere Ave')
+        self.assertEqual(result, '123 Foo Ave')
 
         # Selecting second match explicitly, but doesn't exist
         context = {
             'input_str': 'Your address is 567 Elsewhere Dr.',
             'pattern': u'([0-9]{3} \w+ (?:Ave|St|Dr))'
         }
+        expression = 'regex_substring($.input_str, $.pattern, 1)'
         with self.assertRaises(IndexError):
-            result = YAQL_ENGINE('regex_substring($.input_str, $.pattern, 1)').evaluate(
+            result = YAQL_ENGINE(expression).evaluate(
                 context=self.get_yaql_context(context)
             )
 
@@ -225,7 +228,8 @@ class TestCaseYaqlRegex(base.YaqlFunctionTestCase):
         }
 
         with self.assertRaises(IndexError):
-            result = YAQL_ENGINE('regex_substring($.input_str, $.pattern, 1)').evaluate(
+            expression = 'regex_substring($.input_str, $.pattern, 1)'
+            result = YAQL_ENGINE(expression).evaluate(
                 context=self.get_yaql_context(context)
             )
 

@@ -53,24 +53,27 @@ def get_functions():
 
 class JinjaFunctionTestCase(unittest2.TestCase):
     """Infrastructure to allow Jinja tests to render expressions like Mistral does
+
     """
 
     def setUp(self):
         env = self.get_jinja_environment()
         self._env = env.overlay()
 
-    def get_jinja_environment(self, allow_undefined=False, trim_blocks=True, lstrip_blocks=True):
-        """jinja2.Environment object that is setup with right behaviors and custom functions.
+    def get_jinja_environment(self, allow_undefined=False, trim_blocks=True,
+                              lstrip_blocks=True):
+        """jinja2.Environment object setup with right behaviors and functions
 
-        :param strict_undefined: If should allow undefined variables in templates
+        :param strict_undefined: allow undefined variables in templates
         :type strict_undefined: ``bool``
 
         """
-        # Late import to avoid very expensive in-direct import (~1 second) when this function
-        # is not called / used
+        # Late import to avoid very expensive in-direct import (~1 second)
+        # when this function is not called / used
         import jinja2
 
-        undefined = jinja2.Undefined if allow_undefined else jinja2.StrictUndefined
+        undefined = (jinja2.Undefined if allow_undefined
+                     else jinja2.StrictUndefined)
         env = jinja2.Environment(  # nosec
             undefined=undefined,
             trim_blocks=trim_blocks,
@@ -81,18 +84,8 @@ class JinjaFunctionTestCase(unittest2.TestCase):
         return env
 
     def eval_expression(self, expression, context):
-
         ctx = self.get_jinja_context(context)
-        # opts = {'undefined_to_none': False}
-
-        # ctx = expression_utils.get_jinja_context(data_context)
-        result = self._env.from_string(expression).render(**ctx)
-
-        # LOG.debug("Jinja expression result: %s" % result)
-
-
-        # return self._env.compile_expression(expression, **opts)(**ctx)
-        return result
+        return self._env.from_string(expression).render(**ctx)
 
     def get_jinja_context(self, data_context):
         new_ctx = {

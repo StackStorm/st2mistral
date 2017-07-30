@@ -27,7 +27,8 @@ def to_complex(context, value):
     return json.dumps(value)
 
 
-def to_json_string(context, value, indent=4, sort_keys=False, separators=(',', ':')):
+def to_json_string(context, value, indent=4, sort_keys=False,
+                   separators=(',', ':')):
     return json.dumps(value, indent=indent, separators=separators,
                       sort_keys=sort_keys)
 

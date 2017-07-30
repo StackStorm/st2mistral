@@ -18,11 +18,11 @@ from six.moves import http_client
 from oslo_config import cfg
 from oslo_log import log as logging
 
-from st2mistral import config
-config.register_opts()
-
 from mistral import exceptions as exc
 from st2mistral.utils import http
+
+from st2mistral import config
+config.register_opts()
 
 LOG = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ def st2kv_(context, key, decrypt=False):
 
     :param key: User to whom key belongs.
     :type key: ``str``
-    :param decrypt: Request a decrypted version of the value (defaults to False)
+    :param decrypt: Request decrypted version of the value (defaults to False)
     :type decrypt: ``bool``
 
     :rtype: ``dict``
