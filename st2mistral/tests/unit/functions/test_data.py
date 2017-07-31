@@ -18,8 +18,11 @@ import yaml
 
 from st2mistral.tests.unit import test_function_base as base
 
+from yaql.language import factory
+YAQL_ENGINE = factory.YaqlFactory().create()
 
-class JinjaUtilsDataFunctionTestCase(base.JinjaFunctionTestCase):
+
+class JinjaDataTestCase(base.JinjaFunctionTestCase):
 
     def test_function_to_complex(self):
         obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
@@ -40,4 +43,31 @@ class JinjaUtilsDataFunctionTestCase(base.JinjaFunctionTestCase):
         template = '{{ to_yaml_string(_.k1) }}'
         obj_yaml_str = self.eval_expression(template, {"k1": obj})
         actual_obj = yaml.load(obj_yaml_str)
+        self.assertDictEqual(obj, actual_obj)
+
+
+class YAQLDataTestCase(base.YaqlFunctionTestCase):
+
+    def test_to_complex(self):
+        obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
+        result = YAQL_ENGINE('to_complex($.k1)').evaluate(
+            context=self.get_yaql_context({'k1': obj})
+        )
+        actual_obj = json.loads(result)
+        self.assertDictEqual(obj, actual_obj)
+
+    def test_function_to_json_string(self):
+        obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
+        result = YAQL_ENGINE('to_json_string($.k1)').evaluate(
+            context=self.get_yaql_context({'k1': obj})
+        )
+        actual_obj = json.loads(result)
+        self.assertDictEqual(obj, actual_obj)
+
+    def test_function_to_yaml_string(self):
+        obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
+        result = YAQL_ENGINE('to_yaml_string($.k1)').evaluate(
+            context=self.get_yaql_context({'k1': obj})
+        )
+        actual_obj = yaml.load(result)
         self.assertDictEqual(obj, actual_obj)

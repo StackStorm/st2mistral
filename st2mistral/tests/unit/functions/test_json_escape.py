@@ -16,8 +16,11 @@
 
 from st2mistral.tests.unit import test_function_base as base
 
+from yaql.language import factory
+YAQL_ENGINE = factory.YaqlFactory().create()
 
-class JinjaUtilsJsonEscapeTestCase(base.JinjaFunctionTestCase):
+
+class JinjaJsonEscapeTestCase(base.JinjaFunctionTestCase):
 
     def test_doublequotes(self):
         template = '{{ json_escape(_.test_str) }}'
@@ -53,3 +56,55 @@ class JinjaUtilsJsonEscapeTestCase(base.JinjaFunctionTestCase):
         template = '{{ json_escape(_.test_str) }}'
         result = self.eval_expression(template, {'test_str': 'foo \t bar'})
         self.assertEqual(result, 'foo \\t bar')
+
+
+class YAQLJsonEscapeTestCase(base.YaqlFunctionTestCase):
+
+    def test_doublequotes(self):
+        actual = YAQL_ENGINE('json_escape($.k1)').evaluate(
+            context=self.get_yaql_context({'k1': 'foo """ bar'})
+        )
+        expected = 'foo \\"\\"\\" bar'
+        self.assertEqual(actual, expected)
+
+    def test_backslashes(self):
+        actual = YAQL_ENGINE('json_escape($.k1)').evaluate(
+            context=self.get_yaql_context({'k1': 'foo \ bar'})
+        )
+        expected = 'foo \\\\ bar'
+        self.assertEqual(actual, expected)
+
+    def test_backspace(self):
+        actual = YAQL_ENGINE('json_escape($.k1)').evaluate(
+            context=self.get_yaql_context({'k1': 'foo \b bar'})
+        )
+        expected = 'foo \\b bar'
+        self.assertEqual(actual, expected)
+
+    def test_formfeed(self):
+        actual = YAQL_ENGINE('json_escape($.k1)').evaluate(
+            context=self.get_yaql_context({'k1': 'foo \f bar'})
+        )
+        expected = 'foo \\f bar'
+        self.assertEqual(actual, expected)
+
+    def test_newline(self):
+        actual = YAQL_ENGINE('json_escape($.k1)').evaluate(
+            context=self.get_yaql_context({'k1': 'foo \n bar'})
+        )
+        expected = 'foo \\n bar'
+        self.assertEqual(actual, expected)
+
+    def test_carriagereturn(self):
+        actual = YAQL_ENGINE('json_escape($.k1)').evaluate(
+            context=self.get_yaql_context({'k1': 'foo \r bar'})
+        )
+        expected = 'foo \\r bar'
+        self.assertEqual(actual, expected)
+
+    def test_tab(self):
+        actual = YAQL_ENGINE('json_escape($.k1)').evaluate(
+            context=self.get_yaql_context({'k1': 'foo \t bar'})
+        )
+        expected = 'foo \\t bar'
+        self.assertEqual(actual, expected)

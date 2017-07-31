@@ -16,8 +16,11 @@
 
 from st2mistral.tests.unit import test_function_base as base
 
+from yaql.language import factory
+YAQL_ENGINE = factory.YaqlFactory().create()
 
-class JinjaUseNoneFunctionTestCase(base.JinjaFunctionTestCase):
+
+class JinjaUseNoneTestCase(base.JinjaFunctionTestCase):
 
     def test_use_none(self):
         template = '{{ use_none(_.test_var) }}'
@@ -27,3 +30,17 @@ class JinjaUseNoneFunctionTestCase(base.JinjaFunctionTestCase):
         template = '{{ use_none(_.test_var) }}'
         actual = self.eval_expression(template, {'test_var': 'foobar'})
         self.assertEqual(actual, 'foobar')
+
+
+class YAQLUseNoneTestCase(base.YaqlFunctionTestCase):
+
+    def test_use_none(self):
+        result = YAQL_ENGINE('use_none($.input_str)').evaluate(
+            context=self.get_yaql_context({"input_str": None})
+        )
+        self.assertEqual(result, '%*****__%NONE%__*****%')
+
+        result = YAQL_ENGINE('use_none($.input_str)').evaluate(
+            context=self.get_yaql_context({"input_str": "foobar"})
+        )
+        self.assertEqual(result, 'foobar')
