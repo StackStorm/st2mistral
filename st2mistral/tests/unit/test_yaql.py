@@ -37,6 +37,7 @@ class TestCaseYaqlComplex(base.YaqlFunctionTestCase):
 class TestCaseYaqlData(base.YaqlFunctionTestCase):
 
     def test_function_to_json_string(self):
+
         obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
         result = YAQL_ENGINE('to_json_string($.k1)').evaluate(
             context=self.get_yaql_context({'k1': obj})
@@ -45,6 +46,7 @@ class TestCaseYaqlData(base.YaqlFunctionTestCase):
         self.assertDictEqual(obj, actual_obj)
 
     def test_function_to_yaml_string(self):
+
         obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
         result = YAQL_ENGINE('to_yaml_string($.k1)').evaluate(
             context=self.get_yaql_context({'k1': obj})
@@ -56,6 +58,7 @@ class TestCaseYaqlData(base.YaqlFunctionTestCase):
 class TestCaseYaqlJsonEscape(base.YaqlFunctionTestCase):
 
     def test_doublequotes(self):
+
         actual = YAQL_ENGINE('json_escape($.k1)').evaluate(
             context=self.get_yaql_context({'k1': 'foo """ bar'})
         )
@@ -63,6 +66,7 @@ class TestCaseYaqlJsonEscape(base.YaqlFunctionTestCase):
         self.assertEqual(actual, expected)
 
     def test_backslashes(self):
+
         actual = YAQL_ENGINE('json_escape($.k1)').evaluate(
             context=self.get_yaql_context({'k1': 'foo \ bar'})
         )
@@ -70,6 +74,7 @@ class TestCaseYaqlJsonEscape(base.YaqlFunctionTestCase):
         self.assertEqual(actual, expected)
 
     def test_backspace(self):
+
         actual = YAQL_ENGINE('json_escape($.k1)').evaluate(
             context=self.get_yaql_context({'k1': 'foo \b bar'})
         )
@@ -77,6 +82,7 @@ class TestCaseYaqlJsonEscape(base.YaqlFunctionTestCase):
         self.assertEqual(actual, expected)
 
     def test_formfeed(self):
+
         actual = YAQL_ENGINE('json_escape($.k1)').evaluate(
             context=self.get_yaql_context({'k1': 'foo \f bar'})
         )
@@ -84,6 +90,7 @@ class TestCaseYaqlJsonEscape(base.YaqlFunctionTestCase):
         self.assertEqual(actual, expected)
 
     def test_newline(self):
+
         actual = YAQL_ENGINE('json_escape($.k1)').evaluate(
             context=self.get_yaql_context({'k1': 'foo \n bar'})
         )
@@ -91,6 +98,7 @@ class TestCaseYaqlJsonEscape(base.YaqlFunctionTestCase):
         self.assertEqual(actual, expected)
 
     def test_carriagereturn(self):
+
         actual = YAQL_ENGINE('json_escape($.k1)').evaluate(
             context=self.get_yaql_context({'k1': 'foo \r bar'})
         )
@@ -98,6 +106,7 @@ class TestCaseYaqlJsonEscape(base.YaqlFunctionTestCase):
         self.assertEqual(actual, expected)
 
     def test_tab(self):
+
         actual = YAQL_ENGINE('json_escape($.k1)').evaluate(
             context=self.get_yaql_context({'k1': 'foo \t bar'})
         )
@@ -108,6 +117,7 @@ class TestCaseYaqlJsonEscape(base.YaqlFunctionTestCase):
 class TestCaseYaqlRegex(base.YaqlFunctionTestCase):
 
     def test_functions_regex_match(self):
+
         context = {
             'k1': 'xyz',
             'pattern': u'x'
@@ -136,6 +146,7 @@ class TestCaseYaqlRegex(base.YaqlFunctionTestCase):
         self.assertTrue(result)
 
     def test_functions_regex_replace(self):
+
         context = {
             'k1': u'xyz',
             'pattern': u'x',
@@ -159,6 +170,7 @@ class TestCaseYaqlRegex(base.YaqlFunctionTestCase):
         self.assertEqual(actual, 'color socks and color shoes')
 
     def test_functions_regex_search(self):
+
         context = {
             'k1': 'xyz',
             'pattern': u'x'
@@ -238,7 +250,163 @@ class TestCaseYaqlTime(base.YaqlFunctionTestCase):
 
     def test_to_human_time_from_seconds(self):
 
-        result = YAQL_ENGINE('to_human_time_from_seconds(12345)').evaluate(
-            context=self.get_yaql_context({})
+        result = YAQL_ENGINE('to_human_time_from_seconds($.input_int)').evaluate(
+            context=self.get_yaql_context({"input_int": 12345})
         )
         self.assertEqual(result, '3h25m45s')
+
+        result = YAQL_ENGINE('to_human_time_from_seconds($.input_int)').evaluate(
+            context=self.get_yaql_context({"input_int": 0})
+        )
+        self.assertEqual(result, '0s')
+
+        with self.assertRaises(AssertionError):
+            YAQL_ENGINE('to_human_time_from_seconds($.input_int)').evaluate(
+                context=self.get_yaql_context({"input_int": "foo"})
+            )
+
+
+class TestCaseYaqlUseNone(base.YaqlFunctionTestCase):
+
+    def test_use_none(self):
+
+        result = YAQL_ENGINE('use_none($.input_str)').evaluate(
+            context=self.get_yaql_context({"input_str": None})
+        )
+        self.assertEqual(result, '%*****__%NONE%__*****%')
+
+        result = YAQL_ENGINE('use_none($.input_str)').evaluate(
+            context=self.get_yaql_context({"input_str": "foobar"})
+        )
+        self.assertEqual(result, 'foobar')
+
+
+class TestCaseYaqlVersionFunctions(base.YaqlFunctionTestCase):
+
+    def test_version_compare(self):
+
+        result = YAQL_ENGINE('version_compare($.version, "0.10.0")').evaluate(
+            context=self.get_yaql_context({'version': '0.9.0'})
+        )
+        self.assertEqual(result, -1)
+
+        result = YAQL_ENGINE('version_compare($.version, "0.10.0")').evaluate(
+            context=self.get_yaql_context({'version': '0.10.1'})
+        )
+        self.assertEqual(result, 1)
+
+        result = YAQL_ENGINE('version_compare($.version, "0.10.0")').evaluate(
+            context=self.get_yaql_context({'version': '0.10.0'})
+        )
+        self.assertEqual(result, 0)
+
+    def test_version_more_than(self):
+
+        result = YAQL_ENGINE('version_more_than($.version, "0.10.0")').evaluate(
+            context=self.get_yaql_context({'version': '0.9.0'})
+        )
+        self.assertEqual(result, False)
+
+        result = YAQL_ENGINE('version_more_than($.version, "0.10.0")').evaluate(
+            context=self.get_yaql_context({'version': '0.10.1'})
+        )
+        self.assertEqual(result, True)
+
+        result = YAQL_ENGINE('version_more_than($.version, "0.10.0")').evaluate(
+            context=self.get_yaql_context({'version': '0.10.0'})
+        )
+        self.assertEqual(result, False)
+
+    def test_version_less_than(self):
+
+        result = YAQL_ENGINE('version_less_than($.version, "0.10.0")').evaluate(
+            context=self.get_yaql_context({'version': '0.9.0'})
+        )
+        self.assertEqual(result, True)
+
+        result = YAQL_ENGINE('version_less_than($.version, "0.10.0")').evaluate(
+            context=self.get_yaql_context({'version': '0.10.1'})
+        )
+        self.assertEqual(result, False)
+
+        result = YAQL_ENGINE('version_less_than($.version, "0.10.0")').evaluate(
+            context=self.get_yaql_context({'version': '0.10.0'})
+        )
+        self.assertEqual(result, False)
+
+    def test_version_equal(self):
+
+        result = YAQL_ENGINE('version_equal($.version, "0.10.0")').evaluate(
+            context=self.get_yaql_context({'version': '0.9.0'})
+        )
+        self.assertEqual(result, False)
+
+        result = YAQL_ENGINE('version_equal($.version, "0.10.0")').evaluate(
+            context=self.get_yaql_context({'version': '0.10.1'})
+        )
+        self.assertEqual(result, False)
+
+        result = YAQL_ENGINE('version_equal($.version, "0.10.0")').evaluate(
+            context=self.get_yaql_context({'version': '0.10.0'})
+        )
+        self.assertEqual(result, True)
+
+    def test_version_match(self):
+
+        expression = 'version_match($.version, ">0.10.0")'
+        result = YAQL_ENGINE(expression).evaluate(
+            context=self.get_yaql_context({'version': '0.10.1'})
+        )
+        self.assertEqual(result, True)
+        result = YAQL_ENGINE(expression).evaluate(
+            context=self.get_yaql_context({'version': '0.1.1'})
+        )
+        self.assertEqual(result, False)
+
+        expression = 'version_match($.version, "<0.10.0")'
+        result = YAQL_ENGINE(expression).evaluate(
+            context=self.get_yaql_context({'version': '0.1.0'})
+        )
+        self.assertEqual(result, True)
+        result = YAQL_ENGINE(expression).evaluate(
+            context=self.get_yaql_context({'version': '1.1.0'})
+        )
+        self.assertEqual(result, False)
+
+        expression = 'version_match($.version, "==0.10.0")'
+        result = YAQL_ENGINE(expression).evaluate(
+            context=self.get_yaql_context({'version': '0.10.0'})
+        )
+        self.assertEqual(result, True)
+        result = YAQL_ENGINE(expression).evaluate(
+            context=self.get_yaql_context({'version': '0.10.1'})
+        )
+        self.assertEqual(result, False)
+
+    def test_version_bump_major(self):
+
+        result = YAQL_ENGINE('version_bump_major($.version)').evaluate(
+            context=self.get_yaql_context({'version': '0.10.1'})
+        )
+        self.assertEqual(result, '1.0.0')
+
+    def test_version_bump_minor(self):
+
+        result = YAQL_ENGINE('version_bump_minor($.version)').evaluate(
+            context=self.get_yaql_context({'version': '0.10.1'})
+        )
+        self.assertEqual(result, '0.11.0')
+
+    def test_version_bump_patch(self):
+
+        result = YAQL_ENGINE('version_bump_patch($.version)').evaluate(
+            context=self.get_yaql_context({'version': '0.10.1'})
+        )
+        self.assertEqual(result, '0.10.2')
+
+    def test_version_strip_patch(self):
+
+        result = YAQL_ENGINE('version_strip_patch($.version)').evaluate(
+            context=self.get_yaql_context({'version': '0.10.1'})
+        )
+        self.assertEqual(result, '0.10')
