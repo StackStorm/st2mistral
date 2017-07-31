@@ -24,11 +24,19 @@ config.register_opts()
 from mistral import exceptions as exc
 from st2mistral.utils import http
 
-
 LOG = logging.getLogger(__name__)
 
 
-def st2kv_(context, key):
+def st2kv_(context, key, decrypt=False):
+    """Retrieve value for provided key in StackStorm datastore
+
+    :param key: User to whom key belongs.
+    :type key: ``str``
+    :param decrypt: Request decrypted version of the value (defaults to False)
+    :type decrypt: ``bool``
+
+    :rtype: ``dict``
+    """
 
     # Get StackStorm auth token from the action context.
     token = None
@@ -51,7 +59,7 @@ def st2kv_(context, key):
         key_id = key
 
     endpoint = st2_ctx['api_url'] + '/keys/' + key_id
-    params = {'decrypt': True, 'scope': scope}
+    params = {'decrypt': decrypt, 'scope': scope}
 
     LOG.info(
         'Sending HTTP request for custom YAQL function st2kv '
