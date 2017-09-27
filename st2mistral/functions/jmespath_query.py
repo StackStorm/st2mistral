@@ -13,35 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-import yaml
+import jmespath
 
 __all__ = [
-    'from_json_string',
-    'from_yaml_string',
-    'to_complex',
-    'to_json_string',
-    'to_yaml_string'
+    'jmespath_query',
 ]
 
-def from_json_string(value):
-    return json.loads(value)
 
-
-def from_yaml_string(value):
-    return yaml.safe_load(value)
-
-
-def to_complex(context, value):
-    return json.dumps(value)
-
-
-def to_json_string(context, value, indent=4, sort_keys=False,
-                   separators=(',', ':')):
-    return json.dumps(value, indent=indent, separators=separators,
-                      sort_keys=sort_keys)
-
-
-def to_yaml_string(context, value, indent=4, allow_unicode=True):
-    return yaml.safe_dump(value, indent=indent, allow_unicode=allow_unicode,
-                          default_flow_style=False)
+def jmespath_query(value, query):
+    """Extracts data from an object `value` using a jmespath `query`.
+    :link: http://jmespath.org
+    :param value: a object (dict, array, etc) to query
+    :param query: a jmsepath query expression (string)
+    :returns: the result of the query executed on the value
+    :rtype: dict, array, int, string, bool
+    """
+    return jmespath.search(query, value)
