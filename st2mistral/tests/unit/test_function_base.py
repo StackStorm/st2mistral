@@ -22,8 +22,8 @@ ROOT_YAQL_CONTEXT = None
 
 def get_functions():
     from st2mistral.functions import data
-    from st2mistral.functions import jmespath_query
     from st2mistral.functions import json_escape
+    from st2mistral.functions import jsonpath_query
     from st2mistral.functions import regex
     from st2mistral.functions import time
     from st2mistral.functions import use_none
@@ -32,8 +32,8 @@ def get_functions():
     return {
         'from_json_string': data.from_json_string,
         'from_yaml_string': data.from_yaml_string,
-        'jmespath_query': jmespath_query.jmespath_query,
         'json_escape': json_escape.json_escape,
+        'jsonpath_query': jsonpath_query.jsonpath_query,
         'regex_match': regex.regex_match,
         'regex_replace': regex.regex_replace,
         'regex_search': regex.regex_search,

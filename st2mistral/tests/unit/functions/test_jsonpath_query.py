@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import jmespath
+import jsonpath-rw
 
 from st2mistral.tests.unit import test_function_base as base
 
@@ -23,20 +23,20 @@ YAQL_ENGINE = factory.YaqlFactory().create()
 
 class JinjaDataTestCase(base.JinjaFunctionTestCase):
 
-    def test_function_jmespath_query_static(self):
+    def test_function_jsonpath_query_static(self):
         obj = {'people': [{'first': 'James', 'last': 'd'},
                           {'first': 'Jacob', 'last': 'e'},
                           {'first': 'Jayden', 'last': 'f'},
                           {'missing': 'different'}],
                'foo': {'bar': 'baz'}}
 
-        template = '{{ jmespath_query(_.obj, "people[*].first") }}'
+        template = '{{ jsonpath_query(_.obj, "people[*].first") }}'
         result = self.eval_expression(template, {"obj": obj})
         actual = eval(result)
         expected = ['James', 'Jacob', 'Jayden']
         self.assertEqual(actual, expected)
 
-    def test_function_jmespath_query_dynamic(self):
+    def test_function_jsonpath_query_dynamic(self):
         obj = {'people': [{'first': 'James', 'last': 'd'},
                           {'first': 'Jacob', 'last': 'e'},
                           {'first': 'Jayden', 'last': 'f'},
@@ -44,38 +44,67 @@ class JinjaDataTestCase(base.JinjaFunctionTestCase):
                'foo': {'bar': 'baz'}}
         query = "people[*].last"
 
-        template = '{{ jmespath_query(_.obj, _.query) }}'
+        template = '{{ jsonpath_query(_.obj, _.query) }}'
         result = self.eval_expression(template, {"obj": obj,
                                                  'query': query})
         actual = eval(result)
         expected = ['d', 'e', 'f']
         self.assertEqual(actual, expected)
 
-
-class YAQLDataTestCase(base.YaqlFunctionTestCase):
-
-    def test_function_jmespath_query_static(self):
+    def test_function_jsonpath_query_no_results(self):
         obj = {'people': [{'first': 'James', 'last': 'd'},
                           {'first': 'Jacob', 'last': 'e'},
                           {'first': 'Jayden', 'last': 'f'},
                           {'missing': 'different'}],
                'foo': {'bar': 'baz'}}
-        result = YAQL_ENGINE('jmespath_query($.obj, "people[*].first")').evaluate(
+        query = "query_returns_no_results"
+
+        template = '{{ jsonpath_query(_.obj, _.query) }}'
+        result = self.eval_expression(template, {"obj": obj,
+                                                 'query': query})
+        actual = eval(result)
+        expected = None
+        self.assertEqual(actual, expected)
+
+
+class YAQLDataTestCase(base.YaqlFunctionTestCase):
+
+    def test_function_jsonpath_query_static(self):
+        obj = {'people': [{'first': 'James', 'last': 'd'},
+                          {'first': 'Jacob', 'last': 'e'},
+                          {'first': 'Jayden', 'last': 'f'},
+                          {'missing': 'different'}],
+               'foo': {'bar': 'baz'}}
+        result = YAQL_ENGINE('jsonpath_query($.obj, "people[*].first")').evaluate(
             context=self.get_yaql_context({'obj': obj})
         )
         expected = ['James', 'Jacob', 'Jayden']
         self.assertEqual(result, expected)
 
-    def test_function_jmespath_query_dynamic(self):
+    def test_function_jsonpath_query_dynamic(self):
         obj = {'people': [{'first': 'James', 'last': 'd'},
                           {'first': 'Jacob', 'last': 'e'},
                           {'first': 'Jayden', 'last': 'f'},
                           {'missing': 'different'}],
                'foo': {'bar': 'baz'}}
         query = "people[*].last"
-        result = YAQL_ENGINE('jmespath_query($.obj, $.query)').evaluate(
+        result = YAQL_ENGINE('jsonpath_query($.obj, $.query)').evaluate(
             context=self.get_yaql_context({'obj': obj,
                                            'query': query})
         )
         expected = ['d', 'e', 'f']
+        self.assertEqual(result, expected)
+
+    def test_function_jsonpath_query_no_results(self):
+        obj = {'people': [{'first': 'James', 'last': 'd'},
+                          {'first': 'Jacob', 'last': 'e'},
+                          {'first': 'Jayden', 'last': 'f'},
+                          {'missing': 'different'}],
+               'foo': {'bar': 'baz'}}
+        query = "query_returns_no_results"
+        result = YAQL_ENGINE('jsonpath_query($.obj, $.query)').evaluate(
+            context=self.get_yaql_context({'obj': obj,
+                                           'query': query})
+        )
+        expected = None
         self.assertEqual(result, expected)
