@@ -20,12 +20,14 @@ __all__ = [
 ]
 
 
-def jmespath_query(value, query):
+def jmespath_query(context, value, query):
     """Extracts data from an object `value` using a jmespath `query`.
-    :link: http://jmespath.org
+
+    http://jmespath.org
     :param value: a object (dict, array, etc) to query
     :param query: a jmsepath query expression (string)
     :returns: the result of the query executed on the value
     :rtype: dict, array, int, string, bool
     """
+
     return jmespath.search(query, value)

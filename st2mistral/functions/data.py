@@ -24,11 +24,12 @@ __all__ = [
     'to_yaml_string'
 ]
 
-def from_json_string(value):
+
+def from_json_string(context, value):
     return json.loads(value)
 
 
-def from_yaml_string(value):
+def from_yaml_string(context, value):
     return yaml.safe_load(value)
 
 
