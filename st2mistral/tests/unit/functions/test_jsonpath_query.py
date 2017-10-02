@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import jsonpath_rw
-
 from st2mistral.tests.unit import test_function_base as base
 
 from yaql.language import factory
@@ -75,7 +73,8 @@ class YAQLDataTestCase(base.YaqlFunctionTestCase):
                           {'first': 'Jayden', 'last': 'f'},
                           {'missing': 'different'}],
                'foo': {'bar': 'baz'}}
-        result = YAQL_ENGINE('jsonpath_query($.obj, "people[*].first")').evaluate(
+        expr = 'jsonpath_query($.obj, "people[*].first")'
+        result = YAQL_ENGINE(expr).evaluate(
             context=self.get_yaql_context({'obj': obj})
         )
         expected = ['James', 'Jacob', 'Jayden']
