@@ -13,36 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-import yaml
+import jsonpath_rw
 
 __all__ = [
-    'from_json_string',
-    'from_yaml_string',
-    'to_complex',
-    'to_json_string',
-    'to_yaml_string'
+    'jsonpath_query',
 ]
 
 
-def from_json_string(context, value):
-    return json.loads(value)
+def jsonpath_query(context, value, query):
+    """Extracts data from an object `value` using a JSONPath `query`.
 
+    :link: https://github.com/kennknowles/python-jsonpath-rw
+    :param value: a object (dict, array, etc) to query
+    :param query: a jmsepath query expression (string)
+    :returns: the result of the query executed on the value
+    :rtype: dict, array, int, string, bool
+    """
 
-def from_yaml_string(context, value):
-    return yaml.safe_load(value)
-
-
-def to_complex(context, value):
-    return json.dumps(value)
-
-
-def to_json_string(context, value, indent=4, sort_keys=False,
-                   separators=(',', ':')):
-    return json.dumps(value, indent=indent, separators=separators,
-                      sort_keys=sort_keys)
-
-
-def to_yaml_string(context, value, indent=4, allow_unicode=True):
-    return yaml.safe_dump(value, indent=indent, allow_unicode=allow_unicode,
-                          default_flow_style=False)
+    expr = jsonpath_rw.parse(query)
+    matches = [match.value for match in expr.find(value)]
+    if not matches:
+        return None
+    return matches

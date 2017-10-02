@@ -24,6 +24,22 @@ YAQL_ENGINE = factory.YaqlFactory().create()
 
 class JinjaDataTestCase(base.JinjaFunctionTestCase):
 
+    def test_function_from_json_string(self):
+        obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
+        obj_json_str = json.dumps(obj)
+        template = '{{ from_json_string(_.k1) }}'
+        result = self.eval_expression(template, {"k1": obj_json_str})
+        actual_obj = eval(result)
+        self.assertDictEqual(obj, actual_obj)
+
+    def test_function_from_yaml_string(self):
+        obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
+        obj_yaml_str = yaml.safe_dump(obj)
+        template = '{{ from_yaml_string(_.k1) }}'
+        result = self.eval_expression(template, {"k1": obj_yaml_str})
+        actual_obj = eval(result)
+        self.assertDictEqual(obj, actual_obj)
+
     def test_function_to_complex(self):
         obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
         template = '{{ to_complex(_.k1) }}'
@@ -47,6 +63,22 @@ class JinjaDataTestCase(base.JinjaFunctionTestCase):
 
 
 class YAQLDataTestCase(base.YaqlFunctionTestCase):
+
+    def test_function_from_json_string(self):
+        obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
+        obj_json_str = json.dumps(obj)
+        result = YAQL_ENGINE('from_json_string($.k1)').evaluate(
+            context=self.get_yaql_context({'k1': obj_json_str})
+        )
+        self.assertDictEqual(obj, result)
+
+    def test_function_from_yaml_string(self):
+        obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
+        obj_yaml_str = yaml.safe_dump(obj)
+        result = YAQL_ENGINE('from_yaml_string($.k1)').evaluate(
+            context=self.get_yaql_context({'k1': obj_yaml_str})
+        )
+        self.assertDictEqual(obj, result)
 
     def test_to_complex(self):
         obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
