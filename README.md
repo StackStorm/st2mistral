@@ -1,10 +1,12 @@
 # st2mistral
-StackStorm plugins for OpenStack Mistral.
 
+[![Circle CI Build Status](https://circleci.com/gh/StackStorm/st2mistral.svg?style=shield)](https://circleci.com/gh/StackStorm/st2mistral)
+
+StackStorm plugins for OpenStack Mistral.
 
 ## Copyright, License, and Contributors Agreement
 
-Copyright 2014 StackStorm, Inc.
+Copyright 2014-2017 StackStorm, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this work except in compliance with the License. You may obtain a copy of the License in the [LICENSE](LICENSE) file, or at:
 
