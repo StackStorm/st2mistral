@@ -1,3 +1,7 @@
+machine:
+  post:
+    - pyenv global 2.7.11 3.5.2
+
 dependencies:
   cache_directories:
     - ~/.cache/pip
@@ -8,3 +12,4 @@ test:
   override:
     - tox -e pep8
     - tox -e py27
+    - tox -e py35
