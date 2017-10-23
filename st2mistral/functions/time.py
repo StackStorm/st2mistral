@@ -14,6 +14,9 @@
 # limitations under the License.
 
 import datetime
+import six
+import sys
+
 
 __all__ = [
     'to_human_time_from_seconds'
@@ -28,8 +31,7 @@ def to_human_time_from_seconds(context, seconds):
 
     :rtype: ``str``
     """
-    assert (isinstance(seconds, int) or isinstance(seconds, long) or
-            isinstance(seconds, float))
+    assert isinstance(seconds, six.integer_types) or isinstance(seconds, float)
 
     return _get_human_time(seconds)
 
@@ -53,7 +55,13 @@ def _get_human_time(seconds):
         return '%s\u03BCs' % seconds  # Microseconds
 
     if isinstance(seconds, float):
-        seconds = long(round(seconds))  # Let's lose microseconds.
+        # Convert to long type to not lose microseconds.
+        # However, by default, int is upgraded to long in py3. Replace the long
+        # variable with int type under py3 for backward compatibility with py2.
+        if sys.version_info.major >= 3:
+            long = int
+
+        seconds = long(round(seconds))
 
     timedelta = datetime.timedelta(seconds=seconds)
     offset_date = datetime.datetime(1, 1, 1) + timedelta
