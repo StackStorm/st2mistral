@@ -22,10 +22,10 @@ from oslo_log import log as logging
 from st2mistral import config
 config.register_opts()
 
-from mistral.actions import base
 from mistral.db.v2 import api as db_v2_api
 from mistral import exceptions as exc
 from mistral.workflow import utils as wf_utils
+from mistral_lib import actions as mistral_lib
 
 from st2mistral.utils import http
 
@@ -53,29 +53,42 @@ def _build_callback_url(action_context, version='v2'):
         return None
 
 
-class St2Action(base.Action):
+class St2Action(mistral_lib.Action):
 
-    def __init__(self, action_context, ref, parameters=None, st2_context=None):
+    def __init__(self, ref, parameters=None, st2_context=None):
         if not st2_context or not st2_context.get('api_url'):
             raise exc.ActionException(
-                'Failed to initialize %s [action_context=%s, '
-                'ref=%s]: Invalid st2 context.' % (
-                    self.__class__.__name__, action_context, ref
+                'Failed to initialize %s [ref=%s]: Invalid st2 context.' % (
+                    self.__class__.__name__, ref
                 )
             )
 
-        self.action_context = action_context
         self.ref = ref
         self.parameters = parameters
         self.st2_context = st2_context
         self.st2_context_log_safe = copy.deepcopy(st2_context)
         self.st2_context_log_safe.pop('auth_token', None)
 
-    def run(self):
+    def run(self, context):
+        action_context = {
+            'workflow_execution_id': context.execution.workflow_execution_id,
+            'workflow_name': context.execution.workflow_name,
+            'callback_url': context.execution.callback_url
+        }
+
+        if context.execution.task_id:
+            task_ex = db_v2_api.get_task_execution(context.execution.task_id)
+            action_context['task_execution_id'] = task_ex.id
+            action_context['task_name'] = task_ex.name
+
+        if context.execution.action_execution_id:
+            action_ex_id = context.execution.action_execution_id
+            action_context['action_execution_id'] = action_ex_id
+
         LOG.info(
             'Running %s [action_context=%s, ref=%s, '
             'parameters=%s, st2_context=%s]' % (
-                self.__class__.__name__, self.action_context, self.ref,
+                self.__class__.__name__, action_context, self.ref,
                 self.parameters, self.st2_context_log_safe
             )
         )
@@ -84,7 +97,7 @@ class St2Action(base.Action):
 
         st2_action_context = {
             'parent': self.st2_context.get('parent'),
-            'mistral': self.action_context
+            'mistral': action_context
         }
 
         headers = {
@@ -100,16 +113,16 @@ class St2Action(base.Action):
             'action': self.ref,
             'callback': {
                 'source': 'mistral_v2',
-                'url': _build_callback_url(self.action_context)
+                'url': _build_callback_url(action_context)
             }
         }
 
         notify = self.st2_context.get('notify', {})
         skip_notify_tasks = self.st2_context.get('skip_notify_tasks', [])
-        task_name = self.action_context.get('task_name', 'unknown')
+        task_name = action_context.get('task_name')
 
         # Include notifications settings if the task is not to be skipped.
-        if task_name not in skip_notify_tasks:
+        if task_name and task_name not in skip_notify_tasks:
             body['notify'] = notify
 
         if self.parameters:
@@ -118,7 +131,7 @@ class St2Action(base.Action):
         LOG.info(
             'Sending HTTP request for %s [action_context=%s, '
             'ref=%s, parameters=%s, st2_context=%s]' % (
-                self.__class__.__name__, self.action_context, self.ref,
+                self.__class__.__name__, action_context, self.ref,
                 self.parameters, self.st2_context_log_safe
             )
         )
@@ -129,7 +142,7 @@ class St2Action(base.Action):
             raise exc.ActionException(
                 'Failed to send HTTP request for %s [action_context=%s, '
                 'ref=%s, parameters=%s, st2_context=%s]: %s' % (
-                    self.__class__.__name__, self.action_context, self.ref,
+                    self.__class__.__name__, action_context, self.ref,
                     self.parameters, self.st2_context_log_safe, e
                 )
             )
@@ -137,7 +150,7 @@ class St2Action(base.Action):
         LOG.info(
             'Received HTTP response for %s [action_context=%s, '
             'ref=%s, parameters=%s, st2_context=%s]:\n%s\n%s' % (
-                self.__class__.__name__, self.action_context, self.ref,
+                self.__class__.__name__, action_context, self.ref,
                 self.parameters, self.st2_context_log_safe,
                 resp.status_code, resp.content
             )
