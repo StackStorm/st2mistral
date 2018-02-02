@@ -185,7 +185,7 @@ def on_task_status_update(ex_id, data, event, timestamp, **kwargs):
             root_id,
             ex_id,
             event,
-            events.WORKFLOW_CANCELLED_EVENT,
+            events.WORKFLOW_CANCELLED,
             wf_ex_data,
             timestamp,
             **kwargs
@@ -196,7 +196,7 @@ def on_task_status_update(ex_id, data, event, timestamp, **kwargs):
             root_id,
             ex_id,
             event,
-            events.WORKFLOW_PAUSED_EVENT,
+            events.WORKFLOW_PAUSED,
             wf_ex_data,
             timestamp,
             **kwargs
@@ -217,7 +217,7 @@ def on_task_status_update(ex_id, data, event, timestamp, **kwargs):
                 root_id,
                 ex_id,
                 event,
-                events.WORKFLOW_PAUSED_EVENT,
+                events.WORKFLOW_PAUSED,
                 parent_wf_ex_data,
                 timestamp,
                 **kwargs
@@ -242,7 +242,7 @@ def on_task_status_update(ex_id, data, event, timestamp, **kwargs):
                 root_id,
                 ex_id,
                 event,
-                events.WORKFLOW_PAUSED_EVENT,
+                events.WORKFLOW_PAUSED,
                 parent_wf_ex_data,
                 timestamp,
                 **kwargs
@@ -261,22 +261,22 @@ def on_task_status_update(ex_id, data, event, timestamp, **kwargs):
 
 
 EVENT_FUNCTION_MAP = {
-    events.WORKFLOW_LAUNCHED_EVENT: on_workflow_status_update,
-    events.WORKFLOW_SUCCEEDED_EVENT: on_workflow_status_update,
-    events.WORKFLOW_FAILED_EVENT: on_workflow_status_update,
-    events.WORKFLOW_CANCELLED_EVENT: on_workflow_status_update,
-    events.WORKFLOW_PAUSED_EVENT: on_workflow_status_update,
-    events.WORKFLOW_RESUMED_EVENT: on_workflow_status_update,
-    events.TASK_SUCCEEDED_EVENT: on_task_status_update,
-    events.TASK_FAILED_EVENT: on_task_status_update,
-    events.TASK_CANCELLED_EVENT: on_task_status_update,
-    events.TASK_PAUSED_EVENT: on_task_status_update
+    events.WORKFLOW_LAUNCHED: on_workflow_status_update,
+    events.WORKFLOW_SUCCEEDED: on_workflow_status_update,
+    events.WORKFLOW_FAILED: on_workflow_status_update,
+    events.WORKFLOW_CANCELLED: on_workflow_status_update,
+    events.WORKFLOW_PAUSED: on_workflow_status_update,
+    events.WORKFLOW_RESUMED: on_workflow_status_update,
+    events.TASK_SUCCEEDED: on_task_status_update,
+    events.TASK_FAILED: on_task_status_update,
+    events.TASK_CANCELLED: on_task_status_update,
+    events.TASK_PAUSED: on_task_status_update
 }
 
 
-class St2Notifier(base.NotifierPlugin):
+class St2Notifier(base.NotificationPublisher):
 
-    def notify(self, ex_id, data, event, timestamp, **kwargs):
+    def publish(self, ex_id, data, event, timestamp, **kwargs):
         func = EVENT_FUNCTION_MAP.get(event)
 
         if not func:
