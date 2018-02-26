@@ -26,10 +26,18 @@ LOG = logging.getLogger(__name__)
 
 def retry_on_exceptions(exc):
     if isinstance(exc, requests.exceptions.ConnectionError):
-        LOG.warning('HTTP request returned connection error. Retrying...')
+        LOG.warning(
+            '[stackstorm] HTTP request returned connection error. '
+            'Retrying...'
+        )
+
         return True
     else:
-        LOG.error(str(exc.message))
+        LOG.error(
+            '[stackstorm] HTTP request returned unexpected error. %s' %
+            str(exc.message)
+        )
+
         return False
 
 
@@ -63,3 +71,18 @@ def post(url, data, headers=None, token=None):
         headers['X-Auth-Token'] = str(token)
 
     return requests.post(url, json.dumps(data), headers=headers, verify=False)
+
+
+@retrying.retry(
+    retry_on_exception=retry_on_exceptions,
+    wait_exponential_multiplier=cfg.CONF.st2.retry_exp_msec,
+    wait_exponential_max=cfg.CONF.st2.retry_exp_max_msec,
+    stop_max_delay=cfg.CONF.st2.retry_stop_max_msec)
+def put(url, data, headers=None, token=None):
+    headers = copy.deepcopy(headers) if headers else {}
+    headers['Content-Type'] = 'application/json'
+
+    if token:
+        headers['X-Auth-Token'] = str(token)
+
+    return requests.put(url, json.dumps(data), headers=headers, verify=False)
