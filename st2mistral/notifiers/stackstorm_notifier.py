@@ -24,6 +24,7 @@ config.register_opts()
 from mistral.db.v2 import api as db_api
 from mistral.notifiers import base
 from mistral.notifiers import notification_events as events
+from mistral.workflow import data_flow
 from mistral.workflow import states
 
 from st2mistral.utils import http
@@ -88,32 +89,36 @@ def on_workflow_status_update(ex_id, data, event, timestamp, **kwargs):
     if states.is_paused_or_completed(data['state']):
         with db_api.transaction():
             wf_ex = db_api.get_workflow_execution(ex_id)
+
             task_exs = [
                 task_ex.to_dict()
+                for task_ex in wf_ex.task_executions
+            ]
+
+            task_exs_result = [
+                data_flow.get_task_execution_result(task_ex)
                 for task_ex in wf_ex.task_executions
             ]
 
         if task_exs:
             body['result']['tasks'] = []
 
-            for task_ex in task_exs:
+            for task_ex, task_ex_result in zip(task_exs, task_exs_result):
+                parent_wf_ex_id = task_ex.get('workflow_execution_id', None)
+                task_input = try_json_loads(task_ex.get('input', None))
+                task_publish = try_json_loads(task_ex.get('published', None))
                 task_result = {
                     'id': task_ex['id'],
                     'name': task_ex['name'],
-                    'workflow_execution_id': task_ex.get(
-                        'workflow_execution_id',
-                        None
-                    ),
+                    'workflow_execution_id': parent_wf_ex_id,
                     'workflow_name': task_ex['workflow_name'],
                     'created_at': task_ex.get('created_at', None),
                     'updated_at': task_ex.get('updated_at', None),
                     'state': task_ex.get('state', None),
                     'state_info': task_ex.get('state_info', None),
-                    'input': try_json_loads(task_ex.get('input', None)),
-                    'published': try_json_loads(
-                        task_ex.get('published', None)
-                    ),
-                    'result': try_json_loads(task_ex.get('result', None))
+                    'input': task_input,
+                    'published': task_publish,
+                    'result': task_ex_result
                 }
 
                 body['result']['tasks'].append(task_result)
