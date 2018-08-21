@@ -1,0 +1,37 @@
+version: 2
+
+jobs:
+  py27:
+    working_directory: ~/st2mistral
+    parallelism: 1
+    shell: /bin/bash --login
+    docker:
+      - image: circleci/python:2.7
+    steps:
+      - checkout
+      - run: sudo apt-get update
+      - run: sudo apt-get -y install --fix-missing libxml2-dev libxslt1-dev
+      - run: sudo pip install tox
+      - run: tox -e pep8
+      - run: tox -e py27
+
+  py35:
+    working_directory: ~/st2mistral
+    parallelism: 1
+    shell: /bin/bash --login
+    docker:
+      - image: circleci/python:3.5
+    steps:
+      - checkout
+      - run: sudo apt-get update
+      - run: sudo apt-get -y install --fix-missing libxml2-dev libxslt1-dev
+      - run: sudo pip install tox
+      - run: tox -e pep8
+      - run: tox -e py35
+
+workflows:
+  version: 2
+  tests:
+    jobs:
+      - py27
+      - py35
