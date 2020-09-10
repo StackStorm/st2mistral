@@ -1,4 +1,4 @@
-> **DEPRECATED!**  
+> # DEPRECATED! #
 > Mistral workflow engine is deprecated in favor of native StackStorm Orquesta Workflow Engine.  
 > Please use Orquesta instead: https://docs.stackstorm.com/orquesta/index.html
 >
