@@ -1,3 +1,8 @@
+> # DEPRECATED! #
+> Mistral workflow engine is deprecated in favor of native StackStorm Orquesta Workflow Engine.  
+> Please use Orquesta instead: https://docs.stackstorm.com/orquesta/index.html
+>
+
 # st2mistral
 
 [![Circle CI Build Status](https://circleci.com/gh/StackStorm/st2mistral.svg?style=shield)](https://circleci.com/gh/StackStorm/st2mistral)
